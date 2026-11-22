@@ -1,0 +1,545 @@
+% Lista03.tex
+% !TeX root = L03_RelFinal.tex
+\section*{Lista de Exercícios 3}
+\addcontentsline{toc}{chapter}{Lista de Exercícios 3}
+
+\noindent \textbf{Data:} 27/09/2026
+
+\section*{Resolução}
+\subsection*{Questão 1}
+\subsubsection*{a) Modele o problema e encontre as equações discretizadas}
+
+\subsubsection*{Modelagem: Hip\'oteses}
+
+\begin{enumerate}
+  \item Condu\c{c}\~ao unidimensional na dire\c{c}\~ao $x$, com temperatura uniforme na se\c{c}\~ao transversal.
+  \item Propriedades constantes ($k$, $\rho$, $c$) e se\c{c}\~ao uniforme.
+  \item Coeficiente convectivo $h$ e temperatura ambiente $T_\infty$ uniformes
+        e constantes.
+  \item Topo ($x=L$) isolado; base ($x=0$) mantida em $T_b$.
+\end{enumerate}
+
+\subsubsection*{Balan\c{c}o de energia}
+
+Para uma fatia de espessura $dx$ e \'area de se\c{c}\~ao $A$:
+\[
+  \underbrace{\rho\, c\,A\,dx\,\frac{\partial T}{\partial t}}_{\text{ac\'umulo}} =\underbrace{\left(q_x-q_{x+dx}\right)A}_{\text{condu\c{c}\~ao l\'{\i}quida}} -\underbrace{h\,(\pi D\,dx)\,(T-T_\infty)}_{\text{perda lateral}},
+\]
+onde $\pi\,D\,dx$ \'e a \'area lateral da fatia. Substituindo $q=-k\,\partial T/\partial x$ (Lei de Fourier) e dividindo toda a equação por por $A\,dx$:
+\begin{equation}
+  \rho\, c\,\frac{\partial T}{\partial t} =\frac{\partial}{\partial x}\!\left(k\,\frac{\partial T}{\partial x}\right) + S
+    \label{eq:edp}
+\end{equation}
+
+\vspace{0.1cm}
+
+\begin{equation}
+    S=-\frac{h\pi\,D}{A}\left(T-T_\infty\right)
+\end{equation}
+
+\vspace{0.1cm}
+
+Sendo o termo $S$ (W/m$^3$) um \emph{sumidouro distribu\'{\i}do}: como o modelo 1D n\~ao possui a superf\'{\i}cie lateral como fronteira, a perda convectiva que nela ocorre \'e diluída no volume de cada fatia.
+
+\subsubsection*{Condi\c{c}\~oes inicial e de contorno}
+\[
+  T(x,0)=T_\infty ,\qquad
+  T(0,t)=T_b ,\qquad
+  \left.\frac{\partial T}{\partial x}\right|_{x=L}=0 .
+\]
+
+\subsubsection*{Par\^ametros}
+
+\[
+\begin{array}{lll}
+  T_b=373\ \mathrm{K} & T_\infty=293\ \mathrm{K} & k=10\ \mathrm{W/mK}\\[2pt]
+  D=0{,}01\ \mathrm{m} & L=0{,}05\ \mathrm{m} & h=5{,}0\ \mathrm{W/m^2K}\\[2pt]
+  \alpha=10^{-6}\ \mathrm{m^2/s} & & 
+\end{array}
+\]
+\subsubsection*{Grandezas derivadas}
+\[
+  A=\frac{\pi D^{2}}{4}=7{,}854\times10^{-5}\ \mathrm{m^{2}},\
+\]
+\[
+  \rho\, c=\frac{k}{\alpha}=1{,}0\times10^{7}\ \mathrm{J/m^{3}K},
+  \qquad
+  \frac{h\,\pi D}{A}=2000\ \mathrm{W/m^{3}K}.
+\]
+
+\subsubsection*{Discretiza\c{c}\~ao por volumes finitos}
+
+\subsubsection*{Malha}
+
+O dom\'{\i}nio $0\le x\le L$ \'e dividido em $N$ volumes de largura
+$\Delta x_P=L/N$, com o n\'o no centro de cada volume
+(\emph{cell-centered}). Adota-se a nota\c{c}\~ao: $W$, $P$ e $E$
+designam os n\'os oeste, central e leste; $w$ e $e$ as faces do volume;
+$\Delta x_W$ e $\Delta x_E$ as dist\^ancias entre n\'os vizinhos. No interior
+$\Delta x_W=\Delta x_E=\Delta x_P$; nos volumes de fronteira a dist\^ancia at\'e
+o contorno \'e $\Delta x/2$.
+
+\subsubsection*{Integra\c{c}\~ao}
+
+Integra-se a Eq.~\eqref{eq:edp} sobre o volume de controle
+e sobre o intervalo de tempo:
+\[
+  \int_{t}^{t+\Delta t}\!\!\int_{w}^{e}
+  \rho c\,\frac{\partial T}{\partial t}\,dx\,dt
+  =
+  \int_{t}^{t+\Delta t}\!\!\int_{w}^{e}
+  \left[\frac{\partial}{\partial x}\!\left(k\frac{\partial T}{\partial x}\right)
+  +S\right]dx\,dt .
+\]
+
+Resultando em:
+\[
+  \rho\, c\,\,\Delta x_P\,\left(\frac{T_P-T_P^{0}}{\Delta t}\right)
+  =\frac{k}{\Delta x_E}\left(T_E-T_P\right)
+  -\frac{k}{\Delta x_W}\left(T_P-T_W\right)
+  -\frac{h\pi D\,\Delta x_P}{A}\left(T_P-T_\infty\right),
+\]
+em que o sobrescrito $0$ indica o tempo anterior.
+
+\subsubsection*{Equa\c{c}\~ao discretizada -- volumes internos ($2\le i\le N-1$)}
+
+Agrupando por inc\'ognita, chega-se \`a forma can\^onica
+\begin{equation}
+  \boxed{\;A_P\,T_P=A_W\,T_W+A_E\,T_E+B\;}
+  \label{eq:geral}
+\end{equation}
+com
+\[
+\begin{aligned}
+  A_W&=\frac{k}{\Delta x_W}=\frac{k}{\Delta x_P}, &
+  A_E&=\frac{k}{\Delta x_E}=\frac{k}{\Delta x_P}, \\[4pt]
+  A_P^{0}&=\frac{\rho c\,\Delta x_P}{\Delta t}, &
+  A_P&=A_W+A_E+A_P^{0}+\dfrac{h\pi D}{A}\,\Delta x_P, \\[4pt]
+  B&=A_P^{0}\,T_P^{0}+\dfrac{h\pi D}{A}\,\Delta x_P\,T_\infty . &&
+\end{aligned}
+\]
+
+Escrevendo o termo fonte linearizado como $S=S_C+S_P\,T_P$, com
+\[
+  S_C=\frac{hP}{A}\,T_\infty ,\qquad S_P=-\frac{hP}{A}\le 0 ,
+\]
+a parcela constante integra $B$ e a parcela proporcional a $T_P$ soma-se a
+$A_P$. A condi\c{c}\~ao $S_P\le 0$ garante
+$A_P\ge A_W+A_E$, isto \'e, domin\^ancia diagonal da matriz.
+
+\subsubsection*{Volume de fronteira 1 -- base com temperatura prescrita}
+
+A face oeste do primeiro volume coincide com a base, onde $T=T_b$ \'e
+conhecido; logo $\Delta x_W=\Delta x_P/2$ e o produto $A_W T_b$ passa ao termo independente:
+\begin{equation}
+  A_P\,T_1=A_E\,T_2+B_1 ,
+\end{equation}
+\[
+\begin{aligned}
+  A_E&=\frac{k}{\Delta x_P}, &
+  A_W&=\frac{2k}{\Delta x_P}, \\[4pt]
+  A_P&=A_E+A_W+A_P^{0}+\dfrac{h\pi D\,\Delta x_P}{A}, &
+  B_1&=A_W\,T_b+A_P^{0}\,T_1^{0}+\dfrac{\pi D\,h\,\Delta x_P}{A}\,T_\infty .
+\end{aligned}
+\]
+
+\subsubsection*{Volume de fronteira $N$ -- topo isolado}
+
+Na face leste o fluxo \'e nulo, de modo que o termo correspondente n\~ao
+comparece no balan\c{c}o:
+\begin{equation}
+  A_P\,T_N=A_W\,T_{N-1}+B_N ,
+\end{equation}
+\[
+\begin{aligned}
+  A_W&=\frac{k}{\Delta x_P}, &
+  A_E&=0, \\[4pt]
+  A_P&=A_W+A_P^{0}+\dfrac{\pi D\,h\,\Delta x_P}{A}, &
+  B_N&=A_P^{0}\,T_N^{0}+\dfrac{\pi D\,h\,\Delta x_P}{A}\,T_\infty .
+\end{aligned}
+\]
+
+\subsubsection*{Sistema resultante}
+
+As $N$ equa\c{c}\~oes formam, a cada passo de tempo, um sistema linear
+tridiagonal
+\[
+  -A_W\,T_{m-1}+A_P\,T_m-A_E\,T_{m+1}=B_m ,\qquad m=1,\dots,N,
+\]
+com $A_W=0$ em $m=1$ e $A_E=0$ em $m=N$, resolvido diretamente pelo algoritmo
+de Thomas (TDMA). Como $k$, $\Delta x_P$ e $\Delta t$ s\~ao constantes, os
+coeficientes $A_W$, $A_E$ e $A_P$ s\~ao calculados uma \'unica vez; apenas o
+termo fonte $B_m$ \' e atualizado a cada avan\c{c}o no tempo, por conter
+$T_i^{0}$.
+
+\vspace{0.5cm}
+
+\subsubsection*{b) Implemente a solução utilizando o TDMA}
+
+TDMA:
+
+O método admite que cada incógnita se escreva em função apenas da seguinte,
+\begin{equation}
+  T_m = P_m\,T_{m+1} + Q_m ,
+\end{equation}
+e determina os coeficientes de recorrência por substituição na equação do
+volume $m$:
+\begin{equation}
+  P_m=\frac{A_E}{A_P-A_W P_{m-1}},\qquad
+  Q_m=\frac{B_m+A_W Q_{m-1}}{A_P-A_W P_{m-1}},\qquad P_0=Q_0=0 .
+\end{equation}
+
+A varredura para frente ($m=1,\dots,N$) monta as $N$ relações sem resolver
+nenhuma temperatura. A varredura para trás inicia no último volume, onde
+$A_E=0$ implica $P_N=0$ e portanto $T_N=Q_N$; os demais valores seguem por
+substituição regressiva, $T_m=P_mT_{m+1}+Q_m$, com $m=N-1,\dots,1$. Os zeros
+$P_0=0$ e $P_N=0$ são as duas fronteiras do domínio fechando o algoritmo.
+
+Como o problema é linear ($k$ constante e termo fonte linear em $T$), o TDMA é
+um método \emph{direto}: cada passo de tempo é resolvido exatamente, sem
+iteração interna.
+
+\subsubsection*{Marcha no tempo}
+
+Os coeficientes $A_W$, $A_E$ e $A_P$ são constantes (malha fixa, $\Delta t$
+fixo, propriedades constantes) e por isso montados uma única vez, fora do
+laço. Apenas $B_m$ é atualizado a cada avanço, por conter $T_m^{0}$.
+
+O procedimento é:
+
+\begin{enumerate}
+  \item Inicializar $T_m = T_\infty$ em todos os volumes;
+  \item Montar $B_m$ com o campo do tempo anterior, acrescentando
+        $A_W T_b$ em $B_1$;
+  \item Resolver o sistema pelo TDMA, obtendo o campo no tempo novo;
+  \item Avaliar $\max_i|T_m^{i+1}-T_m^{i}|$; se inferior a $\varepsilon$,
+        encerrar; caso contrário, fazer $T^{0}\leftarrow T$ e retornar ao
+        passo~2.
+\end{enumerate}
+
+Ressalte-se que o critério $\varepsilon$ aplica-se à \emph{marcha temporal} --
+isto é, à aproximação ao regime permanente -- e não à solução do sistema
+linear, que é exata a cada passo.
+
+\subsubsection*{Verificação}
+
+Para $N=10$, $\Delta t=1$~s e $\varepsilon=10^{-6}$~K, a convergência ocorreu
+em 9723 passos.
+
+\vspace{0.5cm}
+
+\subsubsection*{c) Resolva o problema variando o número de volumes elementares}
+
+\begin{table}[H]
+\centering
+\caption{Influência do refino da malha ($\Delta t=1$~s,
+$\varepsilon=10^{-6}$~K). O erro é o desvio máximo nodal em relação à solução
+analítica do item~(e).}
+\begin{tabular}{crrrr}
+\hline
+$N$ & $\Delta x_P$ (m) & $|e|_{\max}$ (K)\\
+\hline
+3  & 0,01667 & 0,49408\\
+5  & 0,01000 & 0,18668\\
+10 & 0,00500 & 0,04838\\
+20 & 0,00250 & 0,01232\\
+40 & 0,00125 & 0,00312\\
+80 & 0,00063 & 0,00137\\
+\hline
+\end{tabular}
+\end{table}
+
+Pode-se perceber que $|e|_{max}$ diminui a medida que o número de elementos de malha aumenta.
+
+\vspace{0.5cm}
+
+\subsubsection*{d) Resolva o problema variando o critério de convergência}
+
+\begin{table}[H]
+\centering
+\caption{Influência do critério de parada ($N=20$, $\Delta t=1$~s).}
+\begin{tabular}{crrrrr}
+\hline
+$\varepsilon$ (K) & passos & $t$ (s) & $|e|_{\max}$ (K)\\
+\hline
+$10^{-1}$ &   188 &   188 & 61,861\\
+$10^{-2}$ &  1946 &  1946 & 8,432\\
+$10^{-4}$ &  5830 &  5830 & 0,0927\\
+$10^{-6}$ &  9714 &  9714 & 0,01232\\
+$10^{-8}$ & 13597 & 13597 & 0,01229\\
+\hline
+\end{tabular}
+\end{table}
+
+Critérios frouxos ($\varepsilon\ge10^{-2}$~K) interrompem a marcha antes do
+regime permanente; para $\varepsilon=10^{-1}$~K a ponta da aleta permanece
+praticamente na temperatura inicial. No extremo oposto observa-se saturação:
+de $10^{-6}$ para $10^{-8}$~K o custo cresce $40\%$ e o erro passa de
+$0{,}01232$ para $0{,}01229$~K. 
+\vspace{0.5cm}
+
+\subsubsection*{e) Compare a solução de regime permanente com a solução analítica}
+
+Em regime permanente a Eq.~\eqref{eq:edp} reduz-se a $\theta''-m^2\theta=0$,
+com $\theta=T-T_\infty$ e $m=\sqrt{h\pi D/kA}=\sqrt{4h/kD}$. Com
+$\theta(0)=\theta_b$ e $\theta'(L)=0$, a solução clássica para aleta de ponta
+adiabática é
+\begin{equation}
+  \frac{T(x)-T_\infty}{T_b-T_\infty}
+  =\frac{\cosh\!\left[m(L-x)\right]}{\cosh(mL)},
+  \qquad
+  \dot Q_{\text{base}}=\sqrt{h\pi D\,kA}\,\left(T_b-T_\infty\right)\tanh(mL).
+\end{equation}
+
+Com os dados do problema:
+\[
+  m=\sqrt{\frac{4\times5{,}0}{10\times0{,}01}}=14{,}142\ \mathrm{m^{-1}},
+  \qquad mL=0{,}7071,\qquad \cosh(mL)=1{,}2606 .
+\]
+
+\begin{table}[H]
+\centering
+\caption{Campo de temperatura em regime permanente ($N=10$,
+$\Delta t=1$~s, $\varepsilon=10^{-6}$~K). Nós em
+$x_m=(m-\tfrac{1}{2})\Delta x_P$.}
+\begin{tabular}{crrrr}
+\hline
+$m$ & $x$ (m) & $T_{\text{num}}$ (K) & $T_{\text{teórico}}$ (K) & erro (K)\\
+\hline
+1  & 0,0025 & 371,279 & 371,328 & $-0{,}0484$\\
+2  & 0,0075 & 368,229 & 368,274 & $-0{,}0455$\\
+3  & 0,0125 & 365,555 & 365,598 & $-0{,}0430$\\
+4  & 0,0175 & 363,243 & 363,284 & $-0{,}0409$\\
+5  & 0,0225 & 361,283 & 361,322 & $-0{,}0391$\\
+6  & 0,0275 & 359,665 & 359,702 & $-0{,}0377$\\
+7  & 0,0325 & 358,379 & 358,416 & $-0{,}0365$\\
+8  & 0,0375 & 357,421 & 357,456 & $-0{,}0357$\\
+9  & 0,0425 & 356,784 & 356,820 & $-0{,}0351$\\
+10 & 0,0475 & 356,467 & 356,502 & $-0{,}0348$\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection*{Questão 2}
+\subsubsection*{a) Por que o problema proposto não tem solução? Explique a razão.}
+ 
+O problema não tem solução, porque, simplesmente, o balanço de energia na
+placa plana não fecha.
+ 
+Resolvendo a EDO:
+\[
+  \frac{d^{2}T}{dx^{2}}+\frac{q'''}{k}=0
+  \quad\therefore\quad
+  \int \frac{d^{2}T}{dx^{2}}\,dx = -\int \frac{q'''}{k}\,dx
+\]
+\[
+  \frac{dT}{dx}=-\frac{q'''}{k}\,x+C
+  \quad\therefore\quad
+  \int \frac{dT}{dx}\,dx = \int\left(-\frac{q'''}{k}\,x+C\right)dx
+\]
+
+\[T(x)=-\frac{q'''}{2k}\,x^{2}+C_1\,x+C_2\]
+ 
+Aplicando as condições de contorno:
+\[
+  -k\left.\frac{dT}{dx}\right|_{x=0}=10\ \mathrm{W/m^{2}}
+\]
+\[
+  -k\left.\frac{dT}{dx}\right|_{x=L}=21\ \mathrm{W/m^{2}}
+\]
+ 
+Sejam:
+\[
+  q'''=7\ \mathrm{W/m^{3}}\ ;\quad k=1\ \mathrm{W/(m\,K)}\ ;\quad L=3\ \mathrm{m}
+\]
+ 
+Primeira condição de contorno:
+\[
+  -\frac{10}{1}=-\frac{7}{1}\times 0+C
+  \quad\therefore\quad
+  C=-10\ \mathrm{K/m}
+\]
+ 
+Segunda condição de contorno:
+\[
+  -\frac{21}{1}=-\frac{7}{1}\times 3+C
+  \quad\therefore\quad
+  C=0\ \mathrm{K/m}
+\]
+ 
+Como, para atender as condições de contorno impostas à EDO, devemos ter dois
+valores diferentes para a constante $C$, o problema, da forma com que foi
+proposto, não possui solução.
+
+\subsubsection*{b) Altere a condição de contorno que deixa a placa, e considere
+que o fluxo de calor que sai é igual a 31 W/m$^2$. Por que não é possível
+encontrar a solução usando TDMA?}
+
+Com $q(L)=31\ \mathrm{W/m^2}$ o balanço global passa a fechar, pois, as condições passam a ser:
+
+\[
+  -k\left.\frac{dT}{dx}\right|_{x=0}=10\ \mathrm{W/m^{2}}
+\]
+\[
+  -k\left.\frac{dT}{dx}\right|_{x=L}=31\ \mathrm{W/m^{2}}
+\]
+
+E os cálculos de $C$ são: 
+
+Primeira condição de contorno:
+\[
+  -\frac{10}{1}=-\frac{7}{1}\times 0+C
+  \quad\therefore\quad
+  C=-10\ \mathrm{K/m}
+\]
+ 
+Segunda condição de contorno:
+\[
+  -\frac{31}{1}=-\frac{7}{1}\times 3+C
+  \quad\therefore\quad
+  C=-10\ \mathrm{K/m}
+\]
+
+Como $C$ é igual para ambas as condições de contorno, podemos dizer que o balanço energético do problema atende à Primeira Lei da Termodinâmica.
+
+Ainda assim o TDMA não resolve o problema. Para evidenciar a razão, aplica-se
+o algoritmo a uma malha de $N=3$ volumes, para a qual
+$\Delta x=1\ \mathrm{m}$ e $k/\Delta x=1\ \mathrm{W/m^2K}$.
+
+\subsubsection*{Coeficientes}
+
+Os dois contornos prescrevem fluxo, de modo que nenhum deles contribui para
+$A_P$: um fluxo imposto não depende da temperatura do nó e vai integralmente
+para o termo fonte.
+
+\begin{table}[H]
+\centering
+\caption{Coeficientes para $N=3$, com fluxo prescrito nas duas faces.}
+\begin{tabular}{ccccc}
+\hline
+$m$ & $A_W$ & $A_E$ & $A_P$ & $B$\\
+\hline
+1 & 0 & 1 & 1 & $q'''\Delta x + q(0) = 7+10 = 17$\\
+2 & 1 & 1 & 2 & $q'''\Delta x = 7$\\
+3 & 1 & 0 & 1 & $q'''\Delta x - q(L) = 7-31 = -24$\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Varredura para frente}
+
+\[
+\begin{aligned}
+  m=1:&\quad P_1=\frac{A_E}{A_P}=\frac{1}{1}=1, &
+              &Q_1=\frac{B_1}{A_P}=\frac{17}{1}=17\\[4pt]
+  m=2:&\quad A_P-A_WP_1=2-1(1)=1, &
+              &P_2=\frac{1}{1}=1,\qquad
+               Q_2=\frac{B_2+A_WQ_1}{1}=\frac{7+17}{1}=24\\[4pt]
+  m=3:&\quad A_P-A_WP_2=1-1(1)=0 &&
+\end{aligned}
+\]
+
+O denominador se anula no último volume e a recorrência é interrompida: não é
+possível calcular $P_3$ nem $Q_3$. O numerador correspondente também é nulo,
+\[
+  B_3+A_WQ_2=-24+24=0 ,
+\]
+de modo que a divisão resulta na indeterminação $0/0$. Dessa forma, não é possível seguir com o método para solução das equações.
+
+Isso ocorrre, pois a diagonal principal apenas iguala a soma dos demais termos da matriz, sem superá-la,
+o que leva a $P_m=1$ e ao denominador nulo em $m=N$.
+
+\subsubsection*{c) Fixe o valor da temperatura da fronteira à direita em
+10\textdegree C. Por que agora foi possível achar a solução usando TDMA?}
+
+Com temperatura prescrita à direita, o contorno passa a estar a meia largura
+de volume do nó~3, o que introduz o  termo $2k/\Delta x$, ligando esse
+nó a um valor conhecido de temperatura (o valor prescrito). Essa parcela soma-se a $A_P$, e o produto entre esse termo e o novo valor prescrito de temperatura vai para $B$:
+
+\begin{table}[H]
+\centering
+\caption{Coeficientes para $N=3$, com $T=10$\textdegree C na face direita.}
+\begin{tabular}{ccccc}
+\hline
+$m$ & $A_W$ & $A_E$ & $A_P$ & $B$\\
+\hline
+1 & 0 & 1 & 1 & $7+10 = 17$\\
+2 & 1 & 1 & 2 & $7$\\
+3 & 1 & 0 & $1+2 = 3$ & $7 + 2(10) = 27$\\
+\hline
+\end{tabular}
+\end{table}
+
+No volume~3 a diagonal passa a superar a soma dos demais termos
+($A_P=3 > A_W+A_E=1$), o que restabelece a dominância diagonal estrita.
+Refazendo a varredura para frente:
+\[
+\begin{aligned}
+  m=1:&\quad P_1=\frac{1}{1}=1, &&Q_1=\frac{17}{1}=17\\[4pt]
+  m=2:&\quad A_P-A_WP_1=2-1(1)=1, &&P_2=1,\qquad Q_2=\frac{7+17}{1}=24\\[4pt]
+  m=3:&\quad A_P-A_WP_2=3-1(1)=2, &&P_3=0,\qquad Q_3=\frac{27+24}{2}=25{,}5
+\end{aligned}
+\]
+
+O denominador não se anula mais, e a varredura para trás fornece a solução:
+\[
+  T_3=Q_3=25{,}5\ \text{\textdegree C},\qquad
+  T_2=P_2T_3+Q_2=49{,}5\ \text{\textdegree C},\qquad
+  T_1=P_1T_2+Q_1=66{,}5\ \text{\textdegree C}.
+\]
+
+\subsubsection*{d) Compare as soluções do item c) para os diferentes métodos
+empregados}
+
+Os quatro métodos foram aplicados à mesma malha de $N=5$ volumes, com
+tolerância $\varepsilon=10^{-8}$~K para os métodos iterativos.
+
+\begin{table}[H]
+\centering
+\caption{Temperaturas nodais obtidas pelos quatro métodos
+($N=5$, $\varepsilon=10^{-8}$).}
+\begin{tabular}{ccccccc}
+\hline
+$m$ & $x$ (m) & Jacobi & Gauss-Seidel & SOR & TDMA & Analítica\\
+\hline
+1 & 0,300 & 68,500 & 68,500 & 68,500 & 68,500 & 68,185\\
+2 & 0,900 & 59,980 & 59,980 & 59,980 & 59,980 & 59,665\\
+3 & 1,500 & 48,940 & 48,940 & 48,940 & 48,940 & 48,625\\
+4 & 2,100 & 35,380 & 35,380 & 35,380 & 35,380 & 35,065\\
+5 & 2,700 & 19,300 & 19,300 & 19,300 & 19,300 & 18,985\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Custo de cada método ($N=5$, $\varepsilon=10^{-8}$).}
+\begin{tabular}{lc}
+\hline
+Método & iterações\\
+\hline
+Jacobi               & 330\\
+Gauss-Seidel         & 168\\
+SOR ($\omega=1{,}2$) & 111\\
+SOR ($\omega=1{,}5$) &  36\\
+SOR ($\omega=1{,}8$) & 100\\
+TDMA                 & ---\\
+\hline
+\end{tabular}
+\end{table}
+
+Todos os métodos convergem para a mesma solução, pois resolvem o mesmo sistema
+linear; a diferença está unicamente no custo computacional. O Gauss-Seidel
+exige cerca de metade das iterações do Jacobi, por utilizar os valores já
+atualizados dentro da própria varredura. O SOR reduz ainda mais esse número,
+desde que $\omega$ seja adequado: com $\omega=1{,}5$ foram necessárias apenas
+36 iterações, enquanto $\omega=1{,}2$ e $\omega=1{,}8$ elevaram o total para
+111 e 100, respectivamente, evidenciando a existência de um valor ótimo.
+
+O TDMA não itera. Por ser um método direto, resolve o sistema tridiagonal em
+duas varreduras, fornecendo a solução exata do sistema discreto e dispensando
+critério de convergência.
+
+O desvio em relação à solução analítica é constante e igual a
+0,315~K em todos os nós, comum aos quatro métodos por se tratar de
+erro de discretização, e não de solução do sistema.
