@@ -1,0 +1,10 @@
+PWD c:\Users\gusta\OneDrive\Área de Trabalho\Cursos\MestradoUFMG\1_PrimeiroSemestre\TC e MF Comp\5_TrabalhoFinal\3_Documento
+INPUT C:\Users\gusta\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Users\gusta\OneDrive\Área de Trabalho\Cursos\MestradoUFMG\1_PrimeiroSemestre\TC e MF Comp\5_TrabalhoFinal\3_Documento\TF.tex
+OUTPUT TF.log
+INPUT C:\Users\gusta\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
+INPUT C:\Users\gusta\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmti10.tfm
+OUTPUT TF.pdf
+INPUT C:\Users\gusta\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\gusta\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx7.tfm
+INPUT C:\Users\gusta\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx5.tfm
