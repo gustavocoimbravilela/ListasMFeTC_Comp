@@ -14,21 +14,36 @@
 \section*{1. Introdução}
 \addcontentsline{toc}{chapter}{Trabalho Final}
 
-Em escoamentos incompressíveis, a pressão não tem equação própria e é determinada pela exigência de que o campo de velocidades conserve a massa.
-O algoritmo SIMPLE [2] trata esse acoplamento iterativamente: a quantidade de movimento fornece a velocidade a partir de uma pressão estimada, e a continuidade é convertida em uma equação de correção da pressão.
+Em escoamentos incompressíveis, a pressão não tem equação própria e é
+determinada pela exigência de que o campo de velocidades conserve a massa.
+O algoritmo SIMPLE [2] trata esse acoplamento iterativamente: a quantidade
+de movimento fornece a velocidade a partir de uma pressão estimada, e a
+continuidade é convertida em uma equação de correção da pressão.
 
-O objetivo deste trabalho é implementar o SIMPLE em uma malha utilizando-se o arranjo desencontrado, com $N$ volumes genéricos, para o escoamento em um bocal convergente (Exemplo 6.2 de [1]), além de avaliar o efeito da malha, da sub-relaxação, do critério de
-convergência e estender o modelo ao bocal preenchido com um leito de esferas compactadas em que a matriz sólida impõe ao fluido um arrasto do tipo Darcy-Forchheimer [3].
+O objetivo deste trabalho é implementar o SIMPLE em malha deslocada, com
+$N$ volumes genérico, para o escoamento em um bocal convergente (Exemplo 6.2
+de [1]); avaliar o efeito da malha, da sub-relaxação e do critério de
+convergência; e estender o modelo ao bocal preenchido com um leito de
+esferas compactadas, em que a matriz sólida impõe ao fluido um arrasto do
+tipo Darcy-Forchheimer [3].
 
 %======================================================================
 \section*{2. O Problema Físico e o Modelo Matemático}
 
-O bocal plano convergente tem comprimento $L=2$~m e área $A(x)= 0,5 - 0,2\,x$.
-O fluido ($\rho=1$~kg/m$^3$) provém de um reservatório com pressão de estagnação $p_0=10$~Pa e é descarregado com pressão estática $p_E=0$.
-No caso poroso, o bocal é preenchido por esferas compactadas com $\varepsilon=0{,}36$. Como o diâmetro das esferas e o fluido não foram especificados, adotou-se $D_p=10$~mm e ar ($\mu=1{,}8\times10^{-5}$~Pa$\cdot$s), para os quais a razão entre o termo inercial e viscoso $\left(\dfrac{C_e \rho \sqrt{K}u}{\mu}\right)$ vale de 0,09 a 0,44 ao longo do bocal, de modo que ambos os termos são relevantes.
+O bocal plano convergente tem comprimento $L=2$~m e área
+$A(x)=A_A-b\,x$, com $A_A=0{,}5$~m$^2$, $A_E=0{,}1$~m$^2$ e $b=0{,}2$~m.
+O fluido ($\rho=1$~kg/m$^3$) provém de um reservatório com pressão de
+estagnação $p_0=10$~Pa e é descarregado com pressão estática $p_E=0$.
+No caso poroso, o bocal é preenchido por esferas compactadas com
+$\varepsilon=0{,}36$. Como o diâmetro das esferas e o fluido não foram
+especificados, adotou-se $D_p=10$~mm e ar ($\mu=1{,}8\times10^{-5}$~Pa$\cdot$s),
+para que os termos viscoso e inercial do arrasto tenham ordens de grandeza
+comparáveis.
 
-\textbf{Hipóteses:} regime permanente; escoamento incompressível e unidimensional; paredes sem atrito; meio poroso homogêneo, isotrópico e
-rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy ($u=Q/A$).
+\textbf{Hipóteses:} regime permanente; escoamento incompressível e
+unidimensional; paredes sem atrito; meio poroso homogêneo, isotrópico e
+rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy
+($u=Q/A$).
 
 \textbf{Equações governantes:}
 \begin{equation}
@@ -39,15 +54,18 @@ rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy ($u=Q/A$).
   -A\left(\frac{\mu}{K}\,u+\frac{C_E\,\rho}{\sqrt{K}}\,|u|\,u\right) ,
   \label{eq:mom}
 \end{equation}
-em que o último termo é o arrasto da matriz porosa por unidade de volume (nulo sem meio poroso, $K\to\infty$). Com área constante, a continuidade impõe $du/dx=0$ e a Eq.~\eqref{eq:mom} recai na lei de Darcy-Forchheimer.
-A permeabilidade e a constante de Ergun são:
+em que o último termo é o arrasto da matriz porosa por unidade de volume
+(nulo sem meio poroso, $K\to\infty$). Com área constante, a continuidade
+impõe $du/dx=0$ e a Eq.~\eqref{eq:mom} recai na lei de Darcy-Forchheimer.
+A permeabilidade e a constante de Ergun são dadas por [3]
 \begin{equation}
   K=\frac{\varepsilon^3\,D_p^2}{150\,(1-\varepsilon)^2}=7{,}59\times10^{-8}~\mathrm{m^2},
   \qquad
   C_E=\frac{1{,}75}{\sqrt{150\,\varepsilon^3}}=0{,}662 .
 \end{equation}
 
-\textbf{Condições de contorno:} na saída, $p_E=0$ e na entrada, a pressão estática decorre da pressão de estagnação pela equação de Bernoulli,
+\textbf{Condições de contorno:} na saída, $p_E=0$; na entrada, a pressão
+estática decorre da pressão de estagnação pela equação de Bernoulli,
 \begin{equation}
   p_A=p_0-\tfrac12\,\rho\,u_A^2 .
   \label{eq:bern}
@@ -62,20 +80,41 @@ Eq.~\eqref{eq:mom} pode ser integrada de 0 a $L$. Com $p(L)=0$, resulta
   =p_0 .
   \label{eq:exata}
 \end{equation}
-Sem meio poroso, restam o primeiro termo e $\dot m=A_E\sqrt{2\rho p_0}=0{,}44721$~kg/s. Com meio poroso, $\dot m=4{,}3078\times10^{-3}$~kg/s, e os três termos valem $9\times10^{-4}$, $8{,}217$ e $1{,}782$~Pa, ou seja, quase toda a pressão disponível é consumida pelo arrasto, e não pela aceleração do fluido.
+Sem meio poroso, restam o primeiro termo e
+$\dot m=A_E\sqrt{2\rho p_0}=0{,}44721$~kg/s. Com meio poroso,
+$\dot m=4{,}3078\times10^{-3}$~kg/s, e os três termos valem
+$9\times10^{-4}$, $8{,}217$ e $1{,}782$~Pa: quase toda a pressão
+disponível é consumida pelo arrasto, e não pela aceleração do fluido.
 
 %======================================================================
 \section*{3. Implementação Numérica}
 
-\textbf{Malha:} Adotou-se uma malha em arranjo desencontrado: $N+1$ nós de pressão em $x_I=(I-1)\,\Delta x$ e $N$ pontos de velocidade nas faces dos volumes de pressão, em $x_i=(i-\tfrac12)\,\Delta x$, com $\Delta x=L/N$. O volume da continuidade é centrado em um nó de pressão e o da quantidade de movimento, em um ponto de velocidade; assim, as diferenças de pressão e as vazões nas faces são obtidas sem interpolação, evitando o desacoplamento pressão-velocidade. Usa-se a notação local $P$, $W$, $E$ (nós) e $w$, $e$ (faces).
+\textbf{Malha.} Adotou-se uma malha deslocada: $N+1$ nós de pressão em
+$x_I=(I-1)\,\Delta x$ e $N$ pontos de velocidade nas faces dos volumes de
+pressão, em $x_i=(i-\tfrac12)\,\Delta x$, com $\Delta x=L/N$. O volume da
+continuidade é centrado em um nó de pressão e o da quantidade de movimento,
+em um ponto de velocidade; assim, as diferenças de pressão e as vazões nas
+faces são obtidas sem interpolação, evitando o desacoplamento
+pressão-velocidade. Usa-se a notação local $P$, $W$, $E$ (nós) e $w$, $e$
+(faces).
 
-\textbf{Interpolação:} Termo advectivo: \emph{upwind} (UDS), com $u_w=u_W$ e $u_e=u_P$, pois $u>0$. Vazões nas faces: interpolação linear, $F_w=\rho A_w(u_W+u_P)/2$, com as velocidades da iteração anterior. Não há termo difusivo. O arrasto é integrado pela regra do ponto médio, com $|u_P|$ da iteração anterior.
+\textbf{Interpolação.} Termo advectivo: \emph{upwind} (UDS), com
+$u_w=u_W$ e $u_e=u_P$, pois $u>0$. Vazões nas faces: interpolação linear,
+$F_w=\rho A_w(u_W+u_P)/2$, com as velocidades da iteração anterior. Não há
+termo difusivo. O arrasto é integrado pela regra do ponto médio, com
+$|u_P|$ da iteração anterior.
 
-\textbf{Quantidade de movimento:} Integrando a Eq.~\eqref{eq:mom} no volume de $P$ obtém-se $a_P\,u_P=a_W\,u_W+a_E\,u_E+S_u$, com $a_E=0$ e
+\textbf{Quantidade de movimento.} Integrando a Eq.~\eqref{eq:mom} no
+volume de $P$ obtém-se $a_P\,u_P=a_W\,u_W+a_E\,u_E+S_u$, com $a_E=0$ e
 \begin{equation}
   D_P=\left(\frac{\mu}{K}+\frac{C_E\,\rho\,|u_P^{old}|}{\sqrt{K}}\right)A_P\,\Delta x .
 \end{equation}
-O arrasto entra em $a_P$, reforçando a diagonal. Os demais coeficientes estão na Tabela~\ref{tab:coef}. No ponto 1, $p_A$ é substituído pela Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$; a parcela negativa de $a_P$ foi passada ao termo fonte com $u_1^{old}$, para manter $a_P>0$. No ponto $N$, a vazão na face de saída vem da continuidade, $F_e=\rho\,u_NA_N$.
+O arrasto entra em $a_P$, reforçando a diagonal. Os demais coeficientes
+estão na Tabela~\ref{tab:coef}. No ponto 1, $p_A$ é substituído pela
+Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$; a parcela negativa de $a_P$ foi
+passada ao termo fonte com $u_1^{old}$ (correção adiada), para manter
+$a_P>0$. No ponto $N$, a vazão na face de saída vem da continuidade,
+$F_e=\rho\,u_NA_N$.
 
 \begin{table}[H]
 \centering
@@ -95,15 +134,19 @@ $N$ & $F_w$ & $F_e+D_P$ & $(p_w-p_E)\,A_N$\\
 \end{tabularx}}
 \end{table}
 
-\textbf{Correção da pressão:} Desprezando as correções dos vizinhos (aproximação do SIMPLE), $u_P=u_P^*+d_P\,(p'_w-p'_e)$, com $d_P=A_P/a_P$. Substituindo na continuidade de cada volume de pressão:
+\textbf{Correção da pressão.} Desprezando as correções dos vizinhos
+(aproximação do SIMPLE), $u_P=u_P^*+d_P\,(p'_w-p'_e)$, com $d_P=A_P/a_P$.
+Substituindo na continuidade de cada volume de pressão:
 \begin{equation}
   a_P\,p'_P=a_W\,p'_W+a_E\,p'_E+b',
   \qquad
   a_W=(\rho dA)_w,\quad a_E=(\rho dA)_e,\quad b'=F_w^*-F_e^* ,
 \end{equation}
-com $a_P=a_W+a_E$. Adota-se $p'_A=p'_E=0$, pois $p_E$ é prescrita e $p_A$ é recalculada pela Eq.~\eqref{eq:bern} a cada iteração.
+com $a_P=a_W+a_E$.
+Adota-se $p'_A=p'_E=0$: $p_E$ é prescrita e $p_A$ é recalculada pela
+Eq.~\eqref{eq:bern} a cada iteração.
 
-\textbf{Algoritmo:}
+\textbf{Algoritmo.}
 \begin{enumerate}
   \setlength{\itemsep}{0pt}
   \item Estimar $p$, com $p(x)=10-5\,x$, e $u$, com $\dot m=1$~kg/s e
@@ -115,14 +158,16 @@ com $a_P=a_W+a_E$. Adota-se $p'_A=p'_E=0$, pois $p_E$ é prescrita e $p_A$ é re
   \item Sub-relaxar $u$ e $p$: $\phi^{new}=(1-\alpha)\,\phi^{old}+\alpha\,\phi$;
   \item Recalcular $p_A$ pela Eq.~\eqref{eq:bern} e voltar ao passo 2.
 \end{enumerate}
-A simulação é registrada como não convergida se alguma velocidade divergir ou se forem atingidas 20\,000 iterações.
+A simulação é registrada como não convergida se alguma velocidade divergir
+ou se forem atingidas 20\,000 iterações.
 
-\textbf{Resíduo.} No início de cada iteração, os coeficientes são aplicados aos campos com que foram montados:
+\textbf{Resíduo.} No início de cada iteração, os coeficientes são
+aplicados aos campos com que foram montados:
 \begin{equation}
   R=\sum_{i=1}^{N}\left|\,a_{P,i}\,u_i-a_{W,i}\,u_{i-1}-S_{u,i}\,\right|
   <\varepsilon_R ,
 \end{equation}
-com $\varepsilon_R$ inicialmente definido como $10^{-5}$
+com $\varepsilon_R=10^{-5}$ salvo indicação em contrário.
 
 %======================================================================
 \section*{4. Resultados e Discussões}
@@ -132,7 +177,13 @@ Os tempos foram medidos apenas no laço iterativo
 
 \subsection*{4.1 Verificação e sub-relaxação}
 
-Com $N=4$ e $\alpha=0{,}8$, o código reproduz a solução convergida de [1] com diferenças na quinta casa decimal (Tabela~\ref{tab:livro}). O erro de 39,1\% é igual em todos os pontos e a continuidade é satisfeita ($u_i=\dot m/(\rho A_i)$).
+Com $N=4$ e $\alpha=0{,}8$, o código reproduz a solução convergida de [1]
+com diferenças na quinta casa decimal (Tabela~\ref{tab:livro}). O erro de
+39,1\% é igual em todos os pontos: satisfeita a continuidade,
+$u_i=\dot m/(\rho A_i)$, e todo o erro está na vazão
+($\dot m=0{,}62221$~kg/s). Os coeficientes da segunda iteração do ponto~1
+publicados em [1] não são reproduzidos, embora a primeira iteração e a
+solução final coincidam, discrepância também relatada em [4].
 
 \begin{table}[H]
 \centering
@@ -157,7 +208,15 @@ ausentes correspondem a casos que não convergiram.}
 \label{fig:relax}
 \end{figure}
 
-A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de 0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. Perto do limite, a solução oscila antes de convergir (formato em ``V'' das curvas), abaixo dele, as iterações crescem com $1/\alpha$.
+A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de
+0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. O
+SIMPLE despreza $\sum a_{nb}u'_{nb}$, mas aqui $a_W=F_w\approx a_P=F_e$:
+o termo desprezado é da ordem do mantido, e a correção de velocidade se
+acumula ao longo dos $N$ pontos a montante. O SIMPLE subestima, assim, a
+resposta da velocidade à pressão e superestima $p'$, o que exige aplicar
+uma fração $\alpha\sim1/N$ da correção. Perto do limite, a solução oscila
+antes de convergir (formato em ``V'' das curvas); abaixo dele, as
+iterações crescem com $1/\alpha$.
 
 \subsection*{4.2 Estudo de malha}
 
@@ -170,13 +229,13 @@ de iterações em cada malha.}
 \hline
 $N$ & $\alpha$ & Iterações & Tempo (s) & $\dot m$ (kg/s) & Erro (\%)\\
 \hline
-4 & 0.8 & 28 & 0.0010 & 0.62221 & 39.13\\
-8 & 0.3 & 79 & 0.0047 & 0.53032 & 18.58\\
-16 & 0.15 & 224 & 0.0228 & 0.48707 & 8.91\\
-32 & 0.05 & 487 & 0.1101 & 0.46659 & 4.33\\
-64 & 0.03 & 894 & 0.2340 & 0.45674 & 2.13\\
-128 & 0.015 & 1824 & 0.8016 & 0.45194 & 1.06\\
-256 & 0.007 & 3887 & 2.8531 & 0.44956 & 0.53\\
+4   & 0,8   & 28   & 0,0003 & 0,62221 & 39,13\\
+8   & 0,3   & 79   & 0,0012 & 0,53032 & 18,58\\
+16  & 0,15  & 224  & 0,0046 & 0,48707 & 8,91\\
+32  & 0,05  & 487  & 0,0196 & 0,46659 & 4,33\\
+64  & 0,03  & 894  & 0,0702 & 0,45674 & 2,13\\
+128 & 0,015 & 1824 & 0,2723 & 0,45194 & 1,06\\
+256 & 0,007 & 3887 & 1,2122 & 0,44956 & 0,53\\
 \hline
 \end{tabular}
 \end{table}
@@ -191,17 +250,108 @@ inclinações de referência: $-1$ (erro $\propto\Delta x$) e 2
 \label{fig:malha}
 \end{figure}
 
-O erro cai pela metade a cada refino (inclinação = $-1$), como esperado para o UDS, de primeira ordem. As malhas grosseiras superestimam a vazão: o UDS transporta o momento com a velocidade a montante, inferior à da face em um escoamento que acelera, subestimando o fluxo de momento na saída. O tempo cresce com $N^2$, pois o custo por iteração é proporcional a $N$ e o número de iterações também, devido à redução de $\alpha$: reduzir o erro pela metade custa quatro vezes mais tempo.
+O erro cai pela metade a cada refino (inclinação $-1$), como esperado para
+o UDS, de primeira ordem. As malhas grosseiras superestimam a vazão: o UDS
+transporta o momento com a velocidade a montante, inferior à da face em um
+escoamento que acelera, subestimando o fluxo de momento na saída. O tempo
+cresce com $N^2$, pois o custo por iteração é proporcional a $N$ e o
+número de iterações também, devido à redução de $\alpha$: reduzir o erro
+pela metade custa quatro vezes mais tempo.
 
 \subsection*{4.3 Critério de convergência}
 
-\pendente{tabela com $\varepsilon_R=10^{-3}$ a $10^{-7}$ para um $N$ fixo:
-iterações, tempo e $\dot m$}
+Para $N=64$ e $\alpha=0{,}03$, variou-se $\varepsilon_R$ de $10^{-2}$ a
+$10^{-8}$ (Tabela~\ref{tab:crit}). A diferença na vazão é calculada em
+relação à solução obtida com $\varepsilon_R=10^{-10}$.
+
+\begin{table}[H]
+\centering
+\caption{Estudo do critério de convergência ($N=64$, $\alpha=0{,}03$).}
+\label{tab:crit}
+\begin{tabular}{crrrr}
+\hline
+$\varepsilon_R$ & Iterações & Tempo (s) & $\dot m$ (kg/s) & Diferença (\%)\\
+\hline
+$10^{-2}$ & 424 & 0,0747 & 0,4567483 & $1{,}1\times10^{-3}$\\
+$10^{-3}$ & 574 & 0,1125 & 0,4567605 & $3{,}8\times10^{-3}$\\
+$10^{-4}$ & 738 & 0,1070 & 0,4567424 & $2{,}0\times10^{-4}$\\
+$10^{-5}$ & 894 & 0,1360 & 0,4567433 & $7{,}7\times10^{-6}$\\
+$10^{-6}$ & 1052 & 0,1598 & 0,4567433 & $2{,}7\times10^{-6}$\\
+$10^{-7}$ & 1192 & 0,2341 & 0,4567433 & $1{,}8\times10^{-7}$\\
+$10^{-8}$ & 1356 & 0,2264 & 0,4567433 & $1{,}1\times10^{-9}$\\
+\hline
+\end{tabular}
+\end{table}
+
+A cada vez que o critério fica dez vezes mais rigoroso, são necessárias
+cerca de 150 iterações a mais, pois o resíduo é reduzido por um fator
+aproximadamente constante a cada iteração. Com critérios mais frouxos
+($\varepsilon_R\ge10^{-3}$), a diferença ainda oscila. Porém, mesmo com
+$\varepsilon_R=10^{-2}$, a diferença na vazão entre o valor obtido e a referência 
+($\varepsilon_R=10^{-10}$) é de 0,001\%, que é mais de mil vezes menor que o erro 
+em relação à solução analítica nessa malha (2,13\%), causado pelo tamanho finito 
+dos volumes. O critério adotado, $10^{-5}$, reduz essa diferença a $10^{-5}$\% e 
+exige cerca de duas vezes mais iterações que o critério mais frouxo.
 
 \subsection*{4.4 Bocal com meio poroso}
 
-\pendente{validação com a Eq.~\eqref{eq:exata}; estudo de malha e de
-sub-relaxação; perfis de $u$ e $p$ com e sem meio poroso}
+Com o meio poroso, o código convergiu sem sub-relaxação ($\alpha=1$) em
+todas as malhas, sempre em 15 iterações (Tabela~\ref{tab:poroso}). Usou-se
+$\varepsilon_R=10^{-10}$ porque, nas malhas finas, o erro em relação à
+solução analítica é tão pequeno que a diferença causada por parar com
+$10^{-5}$ já seria perceptível; o custo adicional é de poucas iterações.
+
+\begin{table}[H]
+\centering
+\caption{Estudo de malha com meio poroso ($\alpha=1$,
+$\varepsilon_R=10^{-10}$). Vazão analítica: 4,30785~g/s.}
+\label{tab:poroso}
+\begin{tabular}{rrrrr}
+\hline
+$N$ & Iterações & Tempo (s) & $\dot m$ (g/s) & Erro (\%)\\
+\hline
+4   & 15 & 0,0002 & 4,42994 & 2,8343\\
+8   & 15 & 0,0003 & 4,34177 & 0,7875\\
+16  & 15 & 0,0004 & 4,31666 & 0,2045\\
+32  & 15 & 0,0008 & 4,31009 & 0,0520\\
+64  & 15 & 0,0015 & 4,30842 & 0,0132\\
+128 & 15 & 0,0032 & 4,30799 & 0,0034\\
+256 & 15 & 0,0062 & 4,30789 & 0,0009\\
+\hline
+\end{tabular}
+\end{table}
+
+A convergência rápida e sem sub-relaxação decorre do arrasto. Como
+$D_P\gg F$, tem-se $a_P\gg a_W$, e o termo $\sum a_{nb}u'_{nb}$ desprezado
+pelo SIMPLE torna-se pequeno frente a $a_P\,u'_P$: a correção de pressão
+fica praticamente exata e não precisa ser atenuada, ao contrário do caso
+sem meio poroso (Seção~4.1).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_poroso.png}
+\caption{Esquerda: pressão ao longo do bocal com e sem meio poroso
+($N=16$), comparada com a solução analítica. Direita: erro na vazão em
+função de $N$, em escala log-log, com as inclinações de referência $-1$ e
+$-2$.}
+\label{fig:poroso}
+\end{figure}
+
+O erro cai agora com $N^2$ (inclinação $-2$ na Figura~\ref{fig:poroso}):
+com 16 volumes ele já é de 0,2\%, menor que o obtido com 256 volumes sem
+meio poroso. Como a aceleração do fluido consome menos de 0,01\% da
+pressão disponível (Seção~2), o erro do UDS, de primeira ordem, torna-se
+irrelevante, e o erro passa a ser dominado pela integração do arrasto
+pela regra do ponto médio, de segunda ordem.
+
+Os perfis de pressão mostram a mudança no comportamento físico. Sem meio
+poroso, a pressão cai pouco até $x\approx1{,}5$~m e despenca perto da
+saída, onde a área é menor e o fluido acelera
+($p=p_0-\tfrac12\rho u^2$). Com meio poroso, a pressão na entrada
+praticamente coincide com $p_0$, pois a velocidade é muito baixa, e a
+queda se distribui por todo o bocal, ficando mais acentuada à jusante,
+onde a velocidade de Darcy, e com ela o arrasto, é maior. A vazão cai de
+0,447 para 0,0043~kg/s, cerca de 100 vezes menor.
 
 %======================================================================
 \section*{5. Considerações Finais}
@@ -213,7 +363,14 @@ sub-relaxação; perfis de $u$ e $p$ com e sem meio poroso}
         volumes a 0,5\% com 256.
   \item O $\alpha$ admissível cai com $1/N$, pois o SIMPLE despreza as
         correções dos vizinhos; com isso, o tempo cresce com $N^2$.
-  \item \pendente{critério de convergência e meio poroso}
+  \item Com $\varepsilon_R=10^{-5}$, o erro causado por parar as iterações
+        é desprezível frente ao erro devido ao tamanho dos volumes; cada
+        redução de dez vezes no critério custa cerca de 150 iterações.
+  \item Com o meio poroso, o arrasto consome praticamente toda a pressão
+        disponível e reduz a vazão cerca de 100 vezes. O arrasto torna a
+        aproximação do SIMPLE quase exata: o método converge sem
+        sub-relaxação em 15 iterações, e o erro passa a ser de segunda
+        ordem, de 0,2\% já com 16 volumes.
 \end{itemize}
 
 %======================================================================
@@ -237,14 +394,10 @@ sub-relaxação; perfis de $u$ e $p$ com e sem meio poroso}
 %======================================================================
 \section*{7. Código desenvolvido}
 
-\pendente{substituir pela versão final, com o meio poroso}
-
 {\scriptsize
 \begin{verbatim}
 # Exemplo 6.2 página 200 livro An Introduction to Computational Fluid Dynamics –
 # the finite volume method, 2ª ed. HK Versteeg, W Malalasekera
-# Bloco 1: o SIMPLE virou uma função, com limite de iterações,
-# checagem de NaN e medição de tempo.
 
 import math
 import time
@@ -258,6 +411,24 @@ A_E = 0.1 # m²
 P_0 = 10 # Pa (pressão de estagnação na entrada)
 P_E = 0 # Pa (pressão estática na saída)
 m_dot_exato = rho * A_E * math.sqrt(2 * P_0 / rho) # kg/s (Bernoulli)
+b = (A_A - A_E) / L # m (A(x) = A_A - b x)
+
+# Meio poroso: leito de esferas compactadas com ar
+mu = 1.8e-5 # Pa.s (ar)
+D_esf = 0.01 # m (diâmetro das esferas)
+eps = 0.36 # porosidade
+K = eps**3 * D_esf**2 / (150 * (1 - eps)**2) # m² (permeabilidade, Ergun)
+CE = 1.75 / math.sqrt(150 * eps**3) # constante de Ergun
+
+
+def vazao_exata(poroso):
+    # Raiz positiva da equação do 2º grau a*m² + c*m - P_0 = 0 (solução analítica)
+    a = 1 / (2 * rho * A_E**2)
+    c = 0
+    if poroso:
+        a = a + CE / (rho * b * math.sqrt(K)) * (1/A_E - 1/A_A)
+        c = mu / (rho * b * K) * math.log(A_A / A_E)
+    return (-c + math.sqrt(c**2 + 4 * a * P_0)) / (2 * a)
 
 
 #TDMA
@@ -283,12 +454,13 @@ def tdma(aP, aW, aE, Su):
     return u
 
 
-def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
+def simple(N, fr, err=1e-5, max_it=20000, mostrar=False, poroso=False):
     # N: número de nós de velocidade
     # fr: fator de relaxação
     # err: critério de parada (soma dos resíduos do momento)
     # max_it: número máximo de iterações (proteção contra divergência)
     # mostrar: se True, imprime o resíduo a cada 100 iterações
+    # poroso: se True, inclui o arrasto de Darcy-Forchheimer do leito de esferas
 
     dx = L / N # m
 
@@ -315,6 +487,15 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
     inicio = time.perf_counter() # marca o tempo de início
 
     while cont < max_it:
+        # Arrasto do meio poroso em cada ponto de velocidade (entra no aP)
+        # D = (mu/K + CE*rho*|u_old|/sqrt(K)) * A * dx
+        D = []
+        for i in range(N):
+            if poroso:
+                D.append((mu/K + CE * rho * abs(us_cht[i]) / math.sqrt(K)) * As_M[i] * dx)
+            else:
+                D.append(0)
+
         # Nós internos da malha de velocidades
         Fw = []
         Fe = []
@@ -328,10 +509,9 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
             Fe.append(rho * (us_cht[i] + us_cht[i+1])/2 * As_P[i+1])
             aW.append(Fw[i-1])
             aE.append(0)
-            aP.append(aW[i-1] + aE[i-1] + (Fe[i-1] - Fw[i-1]))
+            aP.append(aW[i-1] + aE[i-1] + (Fe[i-1] - Fw[i-1]) + D[i])
             Su.append((P_cht[i] - P_cht[i+1]) * As_M[i])
             d.append(As_M[i]/aP[i-1])
-            # (Bloco 3: o arrasto do meio poroso será somado ao aP aqui, antes do d)
 
         # Condições de contorno
         # Pressão de estagnação (Ponto A)
@@ -340,7 +520,7 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
         F_B = rho * (us_cht[0] + us_cht[1]) / 2 * As_P[1]
         aW = [0] + aW
         aE = [0] + aE
-        aP = [F_B + F_A / 2 * (As_M[0] / As_P[0])**2] + aP
+        aP = [F_B + F_A / 2 * (As_M[0] / As_P[0])**2 + D[0]] + aP
         Su = [(P_0 - P_cht[1]) * As_M[0] + F_A * (As_M[0] / As_P[0]) * us_cht[0]] + Su
         d = [As_M[0] / aP[0]] + d
 
@@ -349,7 +529,7 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
         F_E = rho * us_cht[-1] * As_M[-1]
         aW = aW + [F_D]
         aE = aE + [0]
-        aP = aP + [aW[-1] + aE[-1] + F_E - F_D]
+        aP = aP + [aW[-1] + aE[-1] + F_E - F_D + D[-1]]
         Su = Su + [(P_cht[-2] - P_cht[-1]) * As_M[-1]]
         d = d + [As_M[-1] / aP[-1]]
 
@@ -432,12 +612,11 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False):
         "u": us_cht,
         "P": P_cht,
         "m_dot": m_dot,
-        "erro_%": (m_dot - m_dot_exato) / m_dot_exato * 100,
+        "erro_%": (m_dot - vazao_exata(poroso)) / vazao_exata(poroso) * 100,
         "As_M": As_M,
         "As_P": As_P,
     }
     return resultado
-
 
 # Teste: problema do livro (N = 4, fr = 0.8)
 r = simple(4, 0.8)
@@ -449,12 +628,216 @@ print("Erro (%):", r["erro_%"])
 print("u:", r["u"])
 print("P:", r["P"])
 
-# Gráfico do resíduo em escala log
-plt.semilogy(r["residuos"])
-plt.xlabel("Iteração")
-plt.ylabel("Soma dos resíduos do momento")
-plt.title(f"N = {r['N']}, fr = {r['fr']}")
-plt.grid(True)
+# Estudos do relatório: sub-relaxação (Figura 1) e malha (Tabela 3 e Figura 2)
+
+# Fonte das figuras do mesmo tamanho do texto do relatório
+plt.rcParams.update({"font.size": 9, "legend.fontsize": 8})
+
+# ======================================================================
+# Estudo 1: efeito do fator de sub-relaxação
+# ======================================================================
+Ns_relax = [2, 4, 8, 16, 32, 64]
+fs_relax = [0.8, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01]
+
+resultados = []
+for N in Ns_relax:
+    for f in fs_relax:
+        resultados.append(simple(N, f))
+
+for r in resultados:
+    print(f"N:{r['N']}, fr: {r['fr']}, convergiu?: {r['convergiu']}, "
+          f"nº it: {r['iteracoes']}, tempo: {r['tempo']:.3f}")
+
+plt.figure(figsize=(5.0, 3.3))
+for N in Ns_relax:
+    # Separa só os resultados desta malha que convergiram
+    lista_fr = []
+    lista_it = []
+    for r in resultados:
+        if r["N"] == N and r["convergiu"]:
+            lista_fr.append(r["fr"])
+            lista_it.append(r["iteracoes"])
+    plt.plot(lista_fr, lista_it, marker="o", ms=4, label=f"N = {N}")
+
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel(r"Fator de sub-relaxação $\alpha$")
+plt.ylabel("Iterações até convergir")
+plt.grid(True, which="both", alpha=0.3)
+plt.legend(ncol=2)
+plt.tight_layout()
+plt.savefig("fig_relaxacao.png", dpi=300)
+plt.show()
+
+# ======================================================================
+# Estudo 2: malha (cada N com o alpha de menor número de iterações)
+# ======================================================================
+Ns_malha = [4, 8, 16, 32, 64, 128, 256]
+fs_malha = [0.8, 0.3, 0.15, 0.05, 0.03, 0.015, 0.007]
+
+erros = []
+tempos = []
+print()
+print("Linhas da Tabela 3:")
+for i in range(len(Ns_malha)):
+    r = simple(Ns_malha[i], fs_malha[i], max_it=60000)
+    erro = abs(r["erro_%"])
+    erros.append(erro)
+    tempos.append(r["tempo"])
+
+    # Linha da tabela em LaTeX, já com vírgula decimal
+    linha = (f"{r['N']} & {r['fr']} & {r['iteracoes']} & {r['tempo']:.4f} & "
+             f"{r['m_dot']:.5f} & {erro:.2f}\\\\")
+    print(linha.replace(".", ","))
+
+# Retas de referência (passam pelo primeiro ponto do erro e pelo último do tempo)
+ref_erro = []
+ref_tempo = []
+for N in Ns_malha:
+    ref_erro.append(erros[0] * Ns_malha[0] / N)               # inclinação -1
+    ref_tempo.append(tempos[-1] * (N / Ns_malha[-1])**2)      # inclinação 2
+
+fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.6))
+
+ax[0].loglog(Ns_malha, erros, "o-", ms=4, label="SIMPLE (UDS)")
+ax[0].loglog(Ns_malha, ref_erro, "k--", lw=1, label="inclinação = -1")
+ax[0].set_xlabel("N (volumes)")
+ax[0].set_ylabel(r"Erro em $\dot m$ (%)")
+ax[0].grid(True, which="both", alpha=0.3)
+ax[0].legend()
+
+ax[1].loglog(Ns_malha, tempos, "s-", ms=4, color="C1", label="SIMPLE")
+ax[1].loglog(Ns_malha, ref_tempo, "k--", lw=1, label="inclinação = 2")
+ax[1].set_xlabel("N (volumes)")
+ax[1].set_ylabel("Tempo (s)")
+ax[1].grid(True, which="both", alpha=0.3)
+ax[1].legend()
+
+plt.tight_layout()
+plt.savefig("fig_malha.png", dpi=300)
+plt.show()
+
+
+# Estudo do critério de convergência (Tabela 4 do relatório)
+# Malha fixa: N = 64 com alpha = 0.03.
+
+N_crit = 64
+fr_crit = 0.03
+
+# Solução de referência: critério muito apertado, para medir o erro de iteração
+ref = simple(N_crit, fr_crit, err=1e-10, max_it=100000)
+m_ref = ref["m_dot"]
+
+criterios = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8]
+
+print("Linhas da Tabela 4:")
+for e in criterios:
+    r = simple(N_crit, fr_crit, err=e, max_it=100000)
+    dif = abs(r["m_dot"] - m_ref) / m_ref * 100   # diferença em relação à referência (%)
+
+    # Expoente do critério, para escrever 10^{-k} na tabela
+    k = round(-math.log10(e))
+
+    # Diferença em notação científica do LaTeX: 1,1 x 10^{-3}
+    texto = f"{dif:.1e}"              # exemplo: "1.1e-03"
+    mantissa = texto.split("e")[0].replace(".", "{,}")
+    expoente = int(texto.split("e")[1])
+    dif_latex = f"${mantissa}\\times10^{{{expoente}}}$"
+
+    tempo = f"{r['tempo']:.4f}".replace(".", ",")
+    m_dot = f"{r['m_dot']:.7f}".replace(".", ",")
+    print(f"$10^{{-{k}}}$ & {r['iteracoes']} & {tempo} & {m_dot} & {dif_latex}\\\\")
+
+
+# Estudo do bocal com meio poroso (Tabela 5 e Figura 3 do relatório)
+
+plt.rcParams.update({"font.size": 9, "legend.fontsize": 8})
+
+# ======================================================================
+# Estudo de malha com meio poroso (sem sub-relaxação: alpha = 1)
+# Critério 1e-10: aqui o erro de discretização é tão pequeno que o erro de
+# iteração com 1e-5 já seria visível nas malhas finas (custo: ~18 iterações)
+# ======================================================================
+Ns_por = [4, 8, 16, 32, 64, 128, 256]
+erros_por = []
+
+print("Linhas da Tabela 5:")
+for N in Ns_por:
+    r = simple(N, 1.0, err=1e-10, poroso=True)
+    erro = abs(r["erro_%"])
+    erros_por.append(erro)
+    tempo = f"{r['tempo']:.4f}".replace(".", ",")
+    m_dot = f"{r['m_dot']*1000:.5f}".replace(".", ",")   # em g/s, para caber na tabela
+    erro_txt = f"{erro:.4f}".replace(".", ",")
+    print(f"{N} & {r['iteracoes']} & {tempo} & {m_dot} & {erro_txt}\\\\")
+
+# Erros sem meio poroso, para comparar (alpha de menor número de iterações)
+fs_sem = [0.8, 0.3, 0.15, 0.05, 0.03, 0.015, 0.007]
+erros_sem = []
+for i in range(len(Ns_por)):
+    r = simple(Ns_por[i], fs_sem[i], max_it=60000)
+    erros_sem.append(abs(r["erro_%"]))
+
+# ======================================================================
+# Perfis de pressão: numérico (N = 16) e analítico, com e sem meio poroso
+# ======================================================================
+def pressao_exata(x, poroso):
+    m = vazao_exata(poroso)
+    A = A_A - b * x
+    p = P_0 - m**2 / (2 * rho * A**2)
+    if poroso:
+        p = p - mu * m / (rho * b * K) * math.log(A_A / A)
+        p = p - CE * m**2 / (rho * b * math.sqrt(K)) * (1/A - 1/A_A)
+    return p
+
+x_ex = []
+for i in range(201):
+    x_ex.append(i * L / 200)
+
+N_perfil = 16
+dx = L / N_perfil
+x_p = []
+for i in range(N_perfil + 1):
+    x_p.append(i * dx)          # posições dos nós de pressão
+
+r_sem = simple(N_perfil, 0.15)
+r_com = simple(N_perfil, 1.0, err=1e-10, poroso=True)
+
+p_ex_sem = []
+p_ex_com = []
+for x in x_ex:
+    p_ex_sem.append(pressao_exata(x, False))
+    p_ex_com.append(pressao_exata(x, True))
+
+# Retas de referência para o gráfico de erro
+ref1 = []
+ref2 = []
+for N in Ns_por:
+    ref1.append(erros_sem[0] * Ns_por[0] / N)          # inclinação -1
+    ref2.append(erros_por[0] * (Ns_por[0] / N)**2)     # inclinação -2
+
+fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.7))
+
+ax[0].plot(x_ex, p_ex_sem, "k-", lw=1, label="exata")
+ax[0].plot(x_ex, p_ex_com, "k-", lw=1)
+ax[0].plot(x_p, r_sem["P"], "o", ms=4, color="C0", label="sem meio poroso")
+ax[0].plot(x_p, r_com["P"], "s", ms=4, color="C3", label="com meio poroso")
+ax[0].set_xlabel("x (m)")
+ax[0].set_ylabel("p (Pa)")
+ax[0].grid(True, alpha=0.3)
+ax[0].legend()
+
+ax[1].loglog(Ns_por, erros_sem, "o-", ms=4, color="C0", label="sem meio poroso")
+ax[1].loglog(Ns_por, erros_por, "s-", ms=4, color="C3", label="com meio poroso")
+ax[1].loglog(Ns_por, ref1, "k--", lw=1, label="inclinação -1")
+ax[1].loglog(Ns_por, ref2, "k:", lw=1, label="inclinação -2")
+ax[1].set_xlabel("N (volumes)")
+ax[1].set_ylabel(r"Erro em $\dot m$ (%)")
+ax[1].grid(True, which="both", alpha=0.3)
+ax[1].legend(loc="lower left", fontsize=7)
+
+plt.tight_layout()
+plt.savefig("fig_poroso.png", dpi=300)
 plt.show()
 \end{verbatim}
 }

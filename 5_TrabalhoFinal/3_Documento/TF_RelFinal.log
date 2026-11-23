@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.16)  23 NOV 2026 06:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.16)  23 NOV 2026 08:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -407,11 +407,11 @@ Package babel Info: Main language set to 'brazilian'.
 \openout2 = `TF.aux'.
 
  (TF.tex
-LaTeX Font Info:    Trying to load font information for U+msa on input line 20.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 24.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 20.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 24.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
@@ -419,47 +419,53 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 
 ] [2]
-<fig_relaxacao.png, id=21, 505.89pt x 361.35pt>
+<fig_relaxacao.png, id=21, 361.35pt x 238.491pt>
 File: fig_relaxacao.png Graphic file (type png)
 <use fig_relaxacao.png>
-Package pdftex.def Info: fig_relaxacao.png  used on input line 154.
-(pdftex.def)             Requested size: 352.81552pt x 252.01697pt.
+Package pdftex.def Info: fig_relaxacao.png  used on input line 205.
+(pdftex.def)             Requested size: 352.81552pt x 232.86075pt.
  [3]
-<fig_malha.png, id=26, 449.5194pt x 182.1204pt>
+<fig_malha.png, id=26, 455.301pt x 187.902pt>
 File: fig_malha.png Graphic file (type png)
 <use fig_malha.png>
-Package pdftex.def Info: fig_malha.png  used on input line 186.
-(pdftex.def)             Requested size: 441.01773pt x 178.6824pt.
- [4 <./fig_relaxacao.png>]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 210.
+Package pdftex.def Info: fig_malha.png  used on input line 245.
+(pdftex.def)             Requested size: 441.01773pt x 182.0124pt.
+ [4 <./fig_relaxacao.png>] [5 <./fig_malha.png>]
+<fig_poroso.png, id=35, 455.301pt x 195.129pt>
+File: fig_poroso.png Graphic file (type png)
+<use fig_poroso.png>
+Package pdftex.def Info: fig_poroso.png  used on input line 332.
+(pdftex.def)             Requested size: 441.01773pt x 189.01288pt.
+ [6 <./fig_poroso.png>]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 360.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [5 <./fig_malha.png>]
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 233.
+)
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 390.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
-LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 459.
+) [7]
+LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 842.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1pcr.fd
 File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
-) [6] [7] [8]) [9] (TF_RelFinal.aux (Capa/capa.aux) (TF.aux))
+) [8] [9] [10] [11] [12] [13]) [14] (TF_RelFinal.aux (Capa/capa.aux) (TF.aux))
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 8442 strings out of 467501
- 142080 string characters out of 5408550
- 582023 words of memory out of 5000000
- 37531 multiletter control sequences out of 15000+600000
+ 8453 strings out of 467501
+ 142279 string characters out of 5408550
+ 582093 words of memory out of 5000000
+ 37542 multiletter control sequences out of 15000+600000
  654310 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 67i,13n,77p,728b,540s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 67i,13n,77p,628b,539s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TF_RelFinal.pdf (10 pages, 255900 bytes).
+Output written on TF_RelFinal.pdf (15 pages, 510719 bytes).
 PDF statistics:
- 96 PDF objects out of 1000 (max. 8388607)
+ 114 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
