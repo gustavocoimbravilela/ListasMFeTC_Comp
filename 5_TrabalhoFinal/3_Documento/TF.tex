@@ -179,11 +179,7 @@ Core i5-1135G7 (2,40~GHz), com Python 3.13.3, em um único núcleo.
 
 Com $N=4$ e $\alpha=0{,}8$, o código reproduz a solução convergida de [1]
 com diferenças na quinta casa decimal (Tabela~\ref{tab:livro}). O erro de
-39,1\% é igual em todos os pontos: satisfeita a continuidade,
-$u_i=\dot m/(\rho A_i)$, e todo o erro está na vazão
-($\dot m=0{,}62221$~kg/s). Os coeficientes da segunda iteração do ponto~1
-publicados em [1] não são reproduzidos, embora a primeira iteração e a
-solução final coincidam, discrepância também relatada em [4].
+de 39,1\% relacionado à vazão mássica calculada analiticamente é igual em todos os pontos.
 
 \begin{table}[H]
 \centering
@@ -211,10 +207,7 @@ ausentes correspondem a casos que não convergiram.}
 A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de
 0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. O
 SIMPLE despreza $a_{W} u'_{W}$, mas aqui $a_W=F_w\approx a_P=F_e$:
-o termo desprezado é da ordem do mantido, e a correção de velocidade se
-acumula ao longo dos $N$ pontos a montante. O SIMPLE subestima, assim, a
-resposta da velocidade à pressão e superestima $p'$, o que exige aplicar
-uma fração $\alpha\sim1/N$ da correção. Perto do limite, a solução oscila
+o termo desprezado é da ordem do mantido. Perto do limite, a solução oscila
 antes de convergir (formato em ``V'' das curvas); abaixo dele, as
 iterações crescem com $1/\alpha$.
 
@@ -255,7 +248,7 @@ o UDS, de primeira ordem. As malhas grosseiras superestimam a vazão: o UDS
 transporta o momento com a velocidade a montante, inferior à da face em um
 escoamento que acelera, subestimando o fluxo de momento na saída. O tempo
 cresce com $N^2$, pois o custo por iteração é proporcional a $N$ e o
-número de iterações também, devido à redução de $\alpha$: reduzir o erro
+número de iterações também, devido à redução de $\alpha$, ou seja, reduzir o erro
 pela metade custa quatro vezes mais tempo.
 
 \subsection*{4.3 Critério de convergência}
@@ -290,16 +283,17 @@ aproximadamente constante a cada iteração. Com critérios mais frouxos
 $\varepsilon_R=10^{-2}$, a diferença na vazão entre o valor obtido e a referência 
 ($\varepsilon_R=10^{-10}$) é de 0,001\%, que é mais de mil vezes menor que o erro 
 em relação à solução analítica nessa malha (2,13\%), causado pelo tamanho finito 
-dos volumes. O critério adotado, $10^{-5}$, reduz essa diferença a $10^{-5}$\% e 
+dos volumes. O critério adotado ($10^{-5}$) reduz essa diferença a $0,00001$\% e 
 exige cerca de duas vezes mais iterações que o critério mais frouxo.
 
 \subsection*{4.4 Bocal com meio poroso}
 
 Com o meio poroso, o código convergiu sem sub-relaxação ($\alpha=1$) em
-todas as malhas, sempre em 15 iterações (Tabela~\ref{tab:poroso}). Usou-se
-$\varepsilon_R=10^{-10}$ porque, nas malhas finas, o erro em relação à
-solução analítica é tão pequeno que a diferença causada por parar com
-$10^{-5}$ já seria perceptível, além disso o custo adicional é de poucas iterações.
+todas as malhas (Tabela~\ref{tab:poroso}). Usou-se $\varepsilon_R=10^{-10}$
+porque, nas malhas finas, o erro em relação à solução analítica é tão
+pequeno que a diferença causada por parar com $10^{-5}$ já seria
+perceptível. O custo é baixo: são necessárias 15 iterações quando se utiliza o critério $\varepsilon_R=10^{-10}$, contra 9 com
+$\varepsilon_R=10^{-5}$, em qualquer malha.
 
 \begin{table}[H]
 \centering
@@ -323,7 +317,7 @@ $N$ & Iterações & Tempo (s) & $\dot m$ (g/s) & Erro (\%)\\
 
 A convergência rápida e sem sub-relaxação decorre do arrasto. Como
 $D_P\gg F$, tem-se $a_P\gg a_W$, e o termo $a_{W} u'_{W}$ desprezado
-pelo SIMPLE torna-se pequeno frente a $a_P\,u'_P$: a correção de pressão
+pelo SIMPLE torna-se pequeno frente a $a_P\,u'_P$, dessa forma, a correção de pressão
 fica praticamente exata e não precisa ser atenuada, ao contrário do caso
 sem meio poroso (Seção~4.1).
 
@@ -337,7 +331,7 @@ $-2$.}
 \label{fig:poroso}
 \end{figure}
 
-O erro cai agora com $N^2$ (inclinação $-2$ na Figura~\ref{fig:poroso}):
+O erro cai agora com $N^2$ (inclinação = $-2$ na Figura~\ref{fig:poroso}):
 com 16 volumes ele já é de 0,2\%, menor que o obtido com 256 volumes sem
 meio poroso. Como a aceleração do fluido consome menos de 0,01\% da
 pressão disponível (Seção~2), o erro do UDS, de primeira ordem, torna-se
@@ -350,27 +344,27 @@ saída, onde a área é menor e o fluido acelera
 ($p=p_0-\tfrac12\rho u^2$). Com meio poroso, a pressão na entrada
 praticamente coincide com $p_0$, pois a velocidade é muito baixa, e a
 queda se distribui por todo o bocal, ficando mais acentuada à jusante,
-onde a velocidade de Darcy, e com ela o arrasto, é maior. A vazão cai de
+onde a velocidade de Darcy e o arrasto são maiores. A vazão cai de
 0,447 para 0,0043~kg/s, cerca de 100 vezes menor.
 
 %======================================================================
 \section*{5. Considerações Finais}
 
 \begin{itemize}
-  \item O SIMPLE em malha deslocada, com $N$ volumes genérico, reproduziu a
+  \item O SIMPLE em malha com arranjo desencontrado, com $N$ volumes genéricos, reproduziu a
         solução do Exemplo 6.2 de [1].
-  \item O erro na vazão é de primeira ordem em $\Delta x$: de 39\% com 4
+  \item O erro na vazão é de primeira ordem em $\Delta x$ e varia de 39\% com 4
         volumes a 0,5\% com 256.
-  \item O $\alpha$ admissível cai com $1/N$, pois o SIMPLE despreza as
-        correções dos vizinhos e com isso, o tempo cresce com $N^2$.
+  \item O $\alpha$ admissível é inversamente proporcional a $N$ e o tempo de processamento é diretamente proporcional a $N^2$. 
+        Isso decorre do fato do SIMPLE desprezar as correções dos vizinhos.
   \item Com $\varepsilon_R=10^{-5}$, o erro causado por parar as iterações
         é desprezível frente ao erro devido ao tamanho dos volumes, sendo que cada
-        redução de dez vezes no critério custa cerca de 150 iterações.
+        redução de dez vezes no critério custa cerca de 150 iterações a mais.
   \item Com o meio poroso, o arrasto consome praticamente toda a pressão
         disponível e reduz a vazão cerca de 100 vezes. O arrasto torna a
         aproximação do SIMPLE quase exata: o método converge sem
-        sub-relaxação em 15 iterações, e o erro passa a ser de segunda
-        ordem, de 0,2\% já com 16 volumes.
+        sub-relaxação em 15 iterações e o erro passa a ser de segunda
+        ordem, sendo igual a 0,2\% já com 16 volumes.
 \end{itemize}
 
 %======================================================================
