@@ -255,5 +255,4 @@ ax[1].grid(True, which="both", alpha=0.3)
 ax[1].legend()
 
 plt.tight_layout()
-plt.savefig("fig_malha.png", dpi=300)
 plt.show()
