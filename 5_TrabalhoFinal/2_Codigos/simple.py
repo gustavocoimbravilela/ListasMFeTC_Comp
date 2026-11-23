@@ -158,7 +158,7 @@ def simple(N, fr, err=1e-5, max_it=20000, mostrar=False, poroso=False):
 
         u = tdma(aP, aW, aE, Su)
 
-        # Equações de correção da pressão (nós internos B, C, D...)
+        # Equações de correção da pressão (nós internos)
         aW_P = []
         aE_P = []
         aP_P = []
@@ -280,17 +280,14 @@ fs_malha = [0.8, 0.3, 0.15, 0.05, 0.03, 0.015, 0.007]
 erros = []
 tempos = []
 print()
-print("Linhas da Tabela 3:")
+print("Estudo de malha (N, alpha, iterações, tempo [s], vazão [kg/s], erro [%]):")
 for i in range(len(Ns_malha)):
     r = simple(Ns_malha[i], fs_malha[i], max_it=60000)
     erro = abs(r["erro_%"])
     erros.append(erro)
     tempos.append(r["tempo"])
-
-    # Linha da tabela em LaTeX, já com vírgula decimal
-    linha = (f"{r['N']} & {r['fr']} & {r['iteracoes']} & {r['tempo']:.4f} & "
-             f"{r['m_dot']:.5f} & {erro:.2f}\\\\")
-    print(linha.replace(".", ","))
+    print(f"{r['N']}  {r['fr']}  {r['iteracoes']}  {r['tempo']:.4f}  "
+          f"{r['m_dot']:.5f}  {erro:.2f}")
 
 # Retas de referência (passam pelo primeiro ponto do erro e pelo último do tempo)
 ref_erro = []
@@ -332,23 +329,12 @@ m_ref = ref["m_dot"]
 
 criterios = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8]
 
-print("Linhas da Tabela 4:")
+print()
+print("Critério de convergência (critério, iterações, tempo [s], vazão [kg/s], diferença [%]):")
 for e in criterios:
     r = simple(N_crit, fr_crit, err=e, max_it=100000)
     dif = abs(r["m_dot"] - m_ref) / m_ref * 100   # diferença em relação à referência (%)
-
-    # Expoente do critério, para escrever 10^{-k} na tabela
-    k = round(-math.log10(e))
-
-    # Diferença em notação científica do LaTeX: 1,1 x 10^{-3}
-    texto = f"{dif:.1e}"              # exemplo: "1.1e-03"
-    mantissa = texto.split("e")[0].replace(".", "{,}")
-    expoente = int(texto.split("e")[1])
-    dif_latex = f"${mantissa}\\times10^{{{expoente}}}$"
-
-    tempo = f"{r['tempo']:.4f}".replace(".", ",")
-    m_dot = f"{r['m_dot']:.7f}".replace(".", ",")
-    print(f"$10^{{-{k}}}$ & {r['iteracoes']} & {tempo} & {m_dot} & {dif_latex}\\\\")
+    print(f"{e:.0e}  {r['iteracoes']}  {r['tempo']:.4f}  {r['m_dot']:.7f}  {dif:.1e}")
 
 
 # Estudo do bocal com meio poroso (Tabela 5 e Figura 3 do relatório)
@@ -363,15 +349,13 @@ plt.rcParams.update({"font.size": 9, "legend.fontsize": 8})
 Ns_por = [4, 8, 16, 32, 64, 128, 256]
 erros_por = []
 
-print("Linhas da Tabela 5:")
+print()
+print("Meio poroso (N, iterações, tempo [s], vazão [g/s], erro [%]):")
 for N in Ns_por:
     r = simple(N, 1.0, err=1e-10, poroso=True)
     erro = abs(r["erro_%"])
     erros_por.append(erro)
-    tempo = f"{r['tempo']:.4f}".replace(".", ",")
-    m_dot = f"{r['m_dot']*1000:.5f}".replace(".", ",")   # em g/s, para caber na tabela
-    erro_txt = f"{erro:.4f}".replace(".", ",")
-    print(f"{N} & {r['iteracoes']} & {tempo} & {m_dot} & {erro_txt}\\\\")
+    print(f"{N}  {r['iteracoes']}  {r['tempo']:.4f}  {r['m_dot']*1000:.5f}  {erro:.4f}")
 
 # Erros sem meio poroso, para comparar (alpha de menor número de iterações)
 fs_sem = [0.8, 0.3, 0.15, 0.05, 0.03, 0.015, 0.007]
