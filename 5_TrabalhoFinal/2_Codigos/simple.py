@@ -1,5 +1,4 @@
 # Exemplo 6.2 página 200 livro An Introduction to Computational Fluid Dynamics – the finite volume method, 2ª ed. HK Versteeg, W Malalasekera
-# Bloco 1: o SIMPLE virou uma função, com limite de iterações, checagem de NaN e medição de tempo.
 
 import math
 import time
@@ -212,41 +211,49 @@ plt.title(f"N = {r['N']}, fr = {r['fr']}")
 plt.grid(True)
 plt.show()
 
+# Estudo de malha (Tabela 3 e Figura 2 do relatório)
 
-# Estudo de convergência de malha e dos coeficientes de realaxação
-Ns = [2, 4, 8, 16, 32, 64]
-fs = [0.8, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01]
+Ns  = [4, 8, 16, 32, 64, 128, 256]
+frs = [0.8, 0.3, 0.15, 0.05, 0.03, 0.015, 0.007]  # alpha de menor número de iterações
 
-resultados = []
+erros = []
+tempos = []
 
+for i in range(len(Ns)):
+    r = simple(Ns[i], frs[i], max_it=60000)
+    erro = abs(r["erro_%"])
+    erros.append(erro)
+    tempos.append(r["tempo"])
+
+    # Linha da tabela em LaTeX, já com vírgula decimal
+    linha = f"{r['N']} & {r['fr']} & {r['iteracoes']} & {r['tempo']:.4f} & {r['m_dot']:.5f} & {erro:.2f}\\\\"
+    print(linha.replace(".", ","))
+
+# Retas de referência (passam pelo primeiro ponto do erro e pelo último do tempo)
+ref_erro = []
+ref_tempo = []
 for N in Ns:
-    for f in fs:
-        resultados.append(simple(N, f))
+    ref_erro.append(erros[0] * Ns[0] / N)              # inclinação -1
+    ref_tempo.append(tempos[-1] * (N / Ns[-1])**2)     # inclinação 2
 
-for r in (resultados):
-    print(f"N:{r['N']}, fr: {r['fr']}, convergiu?: {r['convergiu']}, nº it: {r['iteracoes']}, tempo: {r['tempo']:.3f}")
+# Figura com dois gráficos lado a lado, no tamanho final da página (~16 cm)
+plt.rcParams.update({"font.size": 9, "legend.fontsize": 8})
+fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.6))
 
-plt.figure(figsize=(7, 5))
+ax[0].loglog(Ns, erros, "o-", ms=4, label="SIMPLE (UDS)")
+ax[0].loglog(Ns, ref_erro, "k--", lw=1, label="inclinação −1")
+ax[0].set_xlabel("N (volumes)")
+ax[0].set_ylabel(r"Erro em $\dot m$ (%)")
+ax[0].grid(True, which="both", alpha=0.3)
+ax[0].legend()
 
-for N in Ns:
-    # Separa só os resultados desta malha que convergiram
-    frs = []
-    its = []
-    for r in resultados:
-        if r["N"] == N and r["convergiu"]:
-            frs.append(r["fr"])
-            its.append(r["iteracoes"])
-    plt.plot(frs, its, marker="o", label=f"N = {N}")
+ax[1].loglog(Ns, tempos, "s-", ms=4, color="C1", label="SIMPLE")
+ax[1].loglog(Ns, ref_tempo, "k--", lw=1, label="inclinação 2")
+ax[1].set_xlabel("N (volumes)")
+ax[1].set_ylabel("Tempo (s)")
+ax[1].grid(True, which="both", alpha=0.3)
+ax[1].legend()
 
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("Fator de relaxação (fr)")
-plt.ylabel("Iterações até convergir")
-plt.title("Estudo B: efeito da relaxação (só os casos que convergiram)")
-plt.grid(True, which="both", alpha=0.3)
-plt.legend()
+plt.tight_layout()
+plt.savefig("fig_malha.png", dpi=300)
 plt.show()
-
-
-
-
