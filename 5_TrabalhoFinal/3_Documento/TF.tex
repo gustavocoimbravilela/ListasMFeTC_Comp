@@ -20,10 +20,10 @@ O algoritmo SIMPLE [2] trata esse acoplamento iterativamente: a quantidade
 de movimento fornece a velocidade a partir de uma pressão estimada, e a
 continuidade é convertida em uma equação de correção da pressão.
 
-O objetivo deste trabalho é implementar o SIMPLE em malha deslocada, com
-$N$ volumes genérico, para o escoamento em um bocal convergente (Exemplo 6.2
-de [1]); avaliar o efeito da malha, da sub-relaxação e do critério de
-convergência; e estender o modelo ao bocal preenchido com um leito de
+O objetivo deste trabalho é implementar o SIMPLE com uma malha utilizando-se o arranjo desencontrado,
+com $N$ volumes genéricos, para o escoamento em um bocal convergente (Exemplo 6.2
+de [1]) além de avaliar o efeito da malha, da sub-relaxação e do critério de
+convergência e estender o modelo ao bocal preenchido com um leito de
 esferas compactadas, em que a matriz sólida impõe ao fluido um arrasto do
 tipo Darcy-Forchheimer [3].
 
@@ -64,7 +64,7 @@ A permeabilidade e a constante de Ergun são dadas por [3]
   C_E=\frac{1{,}75}{\sqrt{150\,\varepsilon^3}}=0{,}662 .
 \end{equation}
 
-\textbf{Condições de contorno:} na saída, $p_E=0$; na entrada, a pressão
+\textbf{Condições de contorno:} na saída, $p_E=0$ e na entrada, a pressão
 estática decorre da pressão de estagnação pela equação de Bernoulli,
 \begin{equation}
   p_A=p_0-\tfrac12\,\rho\,u_A^2 .
@@ -72,7 +72,7 @@ estática decorre da pressão de estagnação pela equação de Bernoulli,
 \end{equation}
 
 \textbf{Solução analítica:} como $\dot m$ é constante e $A(x)$ é linear, a
-Eq.~\eqref{eq:mom} pode ser integrada de 0 a $L$. Com $p(L)=0$, resulta
+Eq.~\eqref{eq:mom} pode ser integrada de 0 a $L$. Com $p(L)=0$, resulta em
 \begin{equation}
   \frac{\dot m^2}{2\rho A_E^2}
   +\frac{\mu\,\dot m}{\rho\,b\,K}\ln\frac{A_A}{A_E}
@@ -89,19 +89,19 @@ disponível é consumida pelo arrasto, e não pela aceleração do fluido.
 %======================================================================
 \section*{3. Implementação Numérica}
 
-\textbf{Malha.} Adotou-se uma malha deslocada: $N+1$ nós de pressão em
+\textbf{Malha.} Adotou-se uma malha com arranjo desencontrado: $N+1$ nós de pressão em
 $x_I=(I-1)\,\Delta x$ e $N$ pontos de velocidade nas faces dos volumes de
 pressão, em $x_i=(i-\tfrac12)\,\Delta x$, com $\Delta x=L/N$. O volume da
 continuidade é centrado em um nó de pressão e o da quantidade de movimento,
-em um ponto de velocidade; assim, as diferenças de pressão e as vazões nas
+em um ponto de velocidade, dessa forma as diferenças de pressão e as vazões nas
 faces são obtidas sem interpolação, evitando o desacoplamento
-pressão-velocidade. Usa-se a notação local $P$, $W$, $E$ (nós) e $w$, $e$
+pressão-velocidade. Usa-se a notação de $P$, $W$, $E$ (nós) e $w$, $e$
 (faces).
 
 \textbf{Interpolação.} Termo advectivo: \emph{upwind} (UDS), com
 $u_w=u_W$ e $u_e=u_P$, pois $u>0$. Vazões nas faces: interpolação linear,
 $F_w=\rho A_w(u_W+u_P)/2$, com as velocidades da iteração anterior. Não há
-termo difusivo. O arrasto é integrado pela regra do ponto médio, com
+termo difusivo. O arrasto de Darcy-Forchheimer é integrado pela regra do ponto médio, com
 $|u_P|$ da iteração anterior.
 
 \textbf{Quantidade de movimento.} Integrando a Eq.~\eqref{eq:mom} no
@@ -111,8 +111,8 @@ volume de $P$ obtém-se $a_P\,u_P=a_W\,u_W+a_E\,u_E+S_u$, com $a_E=0$ e
 \end{equation}
 O arrasto entra em $a_P$, reforçando a diagonal. Os demais coeficientes
 estão na Tabela~\ref{tab:coef}. No ponto 1, $p_A$ é substituído pela
-Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$; a parcela negativa de $a_P$ foi
-passada ao termo fonte com $u_1^{old}$ (correção adiada), para manter
+Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$. A parcela negativa de $a_P$ foi
+passada ao termo fonte com $u_1^{old}$, para manter
 $a_P>0$. No ponto $N$, a vazão na face de saída vem da continuidade,
 $F_e=\rho\,u_NA_N$.
 
