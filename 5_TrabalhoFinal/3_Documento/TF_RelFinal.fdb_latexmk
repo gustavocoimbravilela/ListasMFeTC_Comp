@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1795432209.83548 "c:/Users/gusta/OneDrive/Área de Trabalho/Cursos/MestradoUFMG/1_PrimeiroSemestre/TC e MF Comp/5_TrabalhoFinal/3_Documento/TF_RelFinal.tex" "TF_RelFinal.pdf" "TF_RelFinal" 1795432212.25238 0
+["pdflatex"] 1795432845.3063 "c:/Users/gusta/OneDrive/Área de Trabalho/Cursos/MestradoUFMG/1_PrimeiroSemestre/TC e MF Comp/5_TrabalhoFinal/3_Documento/TF_RelFinal.tex" "TF_RelFinal.pdf" "TF_RelFinal" 1795432847.70699 0
   "C:/Users/gusta/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1790445101 279613 fe62a258ff6d99cc2243c3a2d16aa767 ""
   "C:/Users/gusta/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1786873577 13367606 63a98f2016d5f0072ede05e777025171 ""
   "C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -107,11 +107,11 @@
   "C:/Users/gusta/AppData/Local/Programs/MiKTeX/tex/latex/tools/calc.sty" 1780057721 10374 6789dee941e798d7dec57bf0589f67f6 ""
   "C:/Users/gusta/AppData/Local/Programs/MiKTeX/tex/latex/tools/tabularx.sty" 1780057721 7243 98a9e0737a56460d15d6b41be1ecc3b8 ""
   "C:/Users/gusta/AppData/Local/Programs/MiKTeX/tex/latex/ulem/ulem.sty" 1578651445 15682 94f55b803e160cf7fb6e4d77d07cfe1d ""
-  "Capa/capa.aux" 1795432211 618 2f3a495e1bcc33c046884f259e568b21 "pdflatex"
+  "Capa/capa.aux" 1795432846 618 2f3a495e1bcc33c046884f259e568b21 "pdflatex"
   "Capa/capa.tex" 1795374452 602 b4d2be793e76a20bccb29748823684dd ""
-  "TF.aux" 1795432212 2986 c23fc9f23f7d73ab6fb180b5935c674f "pdflatex"
-  "TF.tex" 1795432207 32107 ead19ecf9811f229c3555d4692912d56 ""
-  "TF_RelFinal.aux" 1795432212 212 abbbd0b524fe6f9b4c225870d02f4125 "pdflatex"
+  "TF.aux" 1795432847 2986 c23fc9f23f7d73ab6fb180b5935c674f "pdflatex"
+  "TF.tex" 1795432844 32130 a783109675c346e7014de75a566b370b ""
+  "TF_RelFinal.aux" 1795432847 212 abbbd0b524fe6f9b4c225870d02f4125 "pdflatex"
   "TF_RelFinal.tex" 1795374153 1653 21d96a84e645c48c86277e59c6920bb6 ""
   "c:/Users/gusta/OneDrive/Área de Trabalho/Cursos/MestradoUFMG/1_PrimeiroSemestre/TC e MF Comp/5_TrabalhoFinal/3_Documento/TF_RelFinal.tex" 1795374153 1653 21d96a84e645c48c86277e59c6920bb6 ""
   "fig_malha.png" 1795432178 116821 2976bd8fb97a515541d498a68e70e8e5 ""

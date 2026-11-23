@@ -172,8 +172,8 @@ com $\varepsilon_R=10^{-5}$ salvo indicação em contrário.
 %======================================================================
 \section*{4. Resultados e Discussões}
 
-Os tempos foram medidos apenas no laço iterativo
-\pendente{processador da máquina usada}.
+Os tempos foram medidos apenas no laço iterativo, em um processador Intel
+Core i5-1135G7 (2,40~GHz), com Python 3.13.3, em um único núcleo.
 
 \subsection*{4.1 Verificação e sub-relaxação}
 
@@ -210,7 +210,7 @@ ausentes correspondem a casos que não convergiram.}
 
 A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de
 0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. O
-SIMPLE despreza $\sum a_{nb}u'_{nb}$, mas aqui $a_W=F_w\approx a_P=F_e$:
+SIMPLE despreza $a_{W} u'_{W}$, mas aqui $a_W=F_w\approx a_P=F_e$:
 o termo desprezado é da ordem do mantido, e a correção de velocidade se
 acumula ao longo dos $N$ pontos a montante. O SIMPLE subestima, assim, a
 resposta da velocidade à pressão e superestima $p'$, o que exige aplicar
@@ -229,13 +229,13 @@ de iterações em cada malha.}
 \hline
 $N$ & $\alpha$ & Iterações & Tempo (s) & $\dot m$ (kg/s) & Erro (\%)\\
 \hline
-4   & 0,8   & 28   & 0,0003 & 0,62221 & 39,13\\
-8   & 0,3   & 79   & 0,0012 & 0,53032 & 18,58\\
-16  & 0,15  & 224  & 0,0046 & 0,48707 & 8,91\\
-32  & 0,05  & 487  & 0,0196 & 0,46659 & 4,33\\
-64  & 0,03  & 894  & 0,0702 & 0,45674 & 2,13\\
-128 & 0,015 & 1824 & 0,2723 & 0,45194 & 1,06\\
-256 & 0,007 & 3887 & 1,2122 & 0,44956 & 0,53\\
+4 & 0,8 & 28 & 0,0003 & 0,62221 & 39,13\\
+8 & 0,3 & 79 & 0,0018 & 0,53032 & 18,58\\
+16 & 0,15 & 224 & 0,0110 & 0,48707 & 8,91\\
+32 & 0,05 & 487 & 0,0445 & 0,46659 & 4,33\\
+64 & 0,03 & 894 & 0,1846 & 0,45674 & 2,13\\
+128 & 0,015 & 1824 & 0,5945 & 0,45194 & 1,06\\
+256 & 0,007 & 3887 & 2,3577 & 0,44956 & 0,53\\
 \hline
 \end{tabular}
 \end{table}
@@ -272,13 +272,13 @@ relação à solução obtida com $\varepsilon_R=10^{-10}$.
 \hline
 $\varepsilon_R$ & Iterações & Tempo (s) & $\dot m$ (kg/s) & Diferença (\%)\\
 \hline
-$10^{-2}$ & 424 & 0,0747 & 0,4567483 & $1{,}1\times10^{-3}$\\
-$10^{-3}$ & 574 & 0,1125 & 0,4567605 & $3{,}8\times10^{-3}$\\
-$10^{-4}$ & 738 & 0,1070 & 0,4567424 & $2{,}0\times10^{-4}$\\
-$10^{-5}$ & 894 & 0,1360 & 0,4567433 & $7{,}7\times10^{-6}$\\
-$10^{-6}$ & 1052 & 0,1598 & 0,4567433 & $2{,}7\times10^{-6}$\\
-$10^{-7}$ & 1192 & 0,2341 & 0,4567433 & $1{,}8\times10^{-7}$\\
-$10^{-8}$ & 1356 & 0,2264 & 0,4567433 & $1{,}1\times10^{-9}$\\
+$10^{-2}$ & 424 & 0,0691 & 0,4567483 & $1{,}1\times10^{-3}$\\
+$10^{-3}$ & 574 & 0,1315 & 0,4567605 & $3{,}8\times10^{-3}$\\
+$10^{-4}$ & 738 & 0,1456 & 0,4567424 & $2{,}0\times10^{-4}$\\
+$10^{-5}$ & 894 & 0,1459 & 0,4567433 & $7{,}7\times10^{-6}$\\
+$10^{-6}$ & 1052 & 0,1720 & 0,4567433 & $2{,}7\times10^{-6}$\\
+$10^{-7}$ & 1192 & 0,1728 & 0,4567433 & $1{,}8\times10^{-7}$\\
+$10^{-8}$ & 1356 & 0,1827 & 0,4567433 & $1{,}1\times10^{-9}$\\
 \hline
 \end{tabular}
 \end{table}
@@ -299,7 +299,7 @@ Com o meio poroso, o código convergiu sem sub-relaxação ($\alpha=1$) em
 todas as malhas, sempre em 15 iterações (Tabela~\ref{tab:poroso}). Usou-se
 $\varepsilon_R=10^{-10}$ porque, nas malhas finas, o erro em relação à
 solução analítica é tão pequeno que a diferença causada por parar com
-$10^{-5}$ já seria perceptível; o custo adicional é de poucas iterações.
+$10^{-5}$ já seria perceptível, além disso o custo adicional é de poucas iterações.
 
 \begin{table}[H]
 \centering
@@ -310,19 +310,19 @@ $\varepsilon_R=10^{-10}$). Vazão analítica: 4,30785~g/s.}
 \hline
 $N$ & Iterações & Tempo (s) & $\dot m$ (g/s) & Erro (\%)\\
 \hline
-4   & 15 & 0,0002 & 4,42994 & 2,8343\\
-8   & 15 & 0,0003 & 4,34177 & 0,7875\\
-16  & 15 & 0,0004 & 4,31666 & 0,2045\\
-32  & 15 & 0,0008 & 4,31009 & 0,0520\\
-64  & 15 & 0,0015 & 4,30842 & 0,0132\\
-128 & 15 & 0,0032 & 4,30799 & 0,0034\\
-256 & 15 & 0,0062 & 4,30789 & 0,0009\\
+4 & 15 & 0,0002 & 4,42994 & 2,8343\\
+8 & 15 & 0,0003 & 4,34177 & 0,7875\\
+16 & 15 & 0,0005 & 4,31666 & 0,2045\\
+32 & 15 & 0,0009 & 4,31009 & 0,0520\\
+64 & 15 & 0,0017 & 4,30842 & 0,0132\\
+128 & 15 & 0,0036 & 4,30799 & 0,0034\\
+256 & 15 & 0,0073 & 4,30789 & 0,0009\\
 \hline
 \end{tabular}
 \end{table}
 
 A convergência rápida e sem sub-relaxação decorre do arrasto. Como
-$D_P\gg F$, tem-se $a_P\gg a_W$, e o termo $\sum a_{nb}u'_{nb}$ desprezado
+$D_P\gg F$, tem-se $a_P\gg a_W$, e o termo $a_{W} u'_{W}$ desprezado
 pelo SIMPLE torna-se pequeno frente a $a_P\,u'_P$: a correção de pressão
 fica praticamente exata e não precisa ser atenuada, ao contrário do caso
 sem meio poroso (Seção~4.1).
