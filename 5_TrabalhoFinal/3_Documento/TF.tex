@@ -17,26 +17,18 @@
 Em escoamentos incompressíveis, a pressão não tem equação própria e é determinada pela exigência de que o campo de velocidades conserve a massa.
 O algoritmo SIMPLE [2] trata esse acoplamento iterativamente: a quantidade de movimento fornece a velocidade a partir de uma pressão estimada, e a continuidade é convertida em uma equação de correção da pressão.
 
-O objetivo deste trabalho é implementar o SIMPLE em uma malha utilizando-se o arranjo desencontrado, com $N$ volumes genéricos, para o escoamento em um bocal convergente (Exemplo 6.2 de [1]), além de avaliar o efeito da malha, da sub-relaxação e do critério de
+O objetivo deste trabalho é implementar o SIMPLE em uma malha utilizando-se o arranjo desencontrado, com $N$ volumes genéricos, para o escoamento em um bocal convergente (Exemplo 6.2 de [1]), além de avaliar o efeito da malha, da sub-relaxação, do critério de
 convergência e estender o modelo ao bocal preenchido com um leito de esferas compactadas em que a matriz sólida impõe ao fluido um arrasto do tipo Darcy-Forchheimer [3].
 
 %======================================================================
 \section*{2. O Problema Físico e o Modelo Matemático}
 
-O bocal plano convergente tem comprimento $L=2$~m e área
-$A(x)= 0,5 - 0,2\,x$.
-O fluido ($\rho=1$~kg/m$^3$) provém de um reservatório com pressão de
-estagnação $p_0=10$~Pa e é descarregado com pressão estática $p_E=0$.
-No caso poroso, o bocal é preenchido por esferas compactadas com
-$\varepsilon=0{,}36$. Como o diâmetro das esferas e o fluido não foram
-especificados, adotou-se $D_p=10$~mm e ar ($\mu=1{,}8\times10^{-5}$~Pa$\cdot$s),
-para que os termos viscoso e inercial do arrasto tenham ordens de grandeza
-comparáveis.
+O bocal plano convergente tem comprimento $L=2$~m e área $A(x)= 0,5 - 0,2\,x$.
+O fluido ($\rho=1$~kg/m$^3$) provém de um reservatório com pressão de estagnação $p_0=10$~Pa e é descarregado com pressão estática $p_E=0$.
+No caso poroso, o bocal é preenchido por esferas compactadas com $\varepsilon=0{,}36$. Como o diâmetro das esferas e o fluido não foram especificados, adotou-se $D_p=10$~mm e ar ($\mu=1{,}8\times10^{-5}$~Pa$\cdot$s), para os quais a razão entre o termo inercial e viscoso $\left(\dfrac{C_e \rho \sqrt{K}u}{\mu}\right)$ vale de 0,09 a 0,44 ao longo do bocal, de modo que ambos os termos são relevantes.
 
-\textbf{Hipóteses:} regime permanente; escoamento incompressível e
-unidimensional; paredes sem atrito; meio poroso homogêneo, isotrópico e
-rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy
-($u=Q/A$).
+\textbf{Hipóteses:} regime permanente; escoamento incompressível e unidimensional; paredes sem atrito; meio poroso homogêneo, isotrópico e
+rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy ($u=Q/A$).
 
 \textbf{Equações governantes:}
 \begin{equation}
@@ -47,18 +39,15 @@ rígido, ocupando todo o bocal, com $u$ igual à velocidade de Darcy
   -A\left(\frac{\mu}{K}\,u+\frac{C_E\,\rho}{\sqrt{K}}\,|u|\,u\right) ,
   \label{eq:mom}
 \end{equation}
-em que o último termo é o arrasto da matriz porosa por unidade de volume
-(nulo sem meio poroso, $K\to\infty$). Com área constante, a continuidade
-impõe $du/dx=0$ e a Eq.~\eqref{eq:mom} recai na lei de Darcy-Forchheimer.
-A permeabilidade e a constante de Ergun são dadas por [3]
+em que o último termo é o arrasto da matriz porosa por unidade de volume (nulo sem meio poroso, $K\to\infty$). Com área constante, a continuidade impõe $du/dx=0$ e a Eq.~\eqref{eq:mom} recai na lei de Darcy-Forchheimer.
+A permeabilidade e a constante de Ergun são:
 \begin{equation}
   K=\frac{\varepsilon^3\,D_p^2}{150\,(1-\varepsilon)^2}=7{,}59\times10^{-8}~\mathrm{m^2},
   \qquad
   C_E=\frac{1{,}75}{\sqrt{150\,\varepsilon^3}}=0{,}662 .
 \end{equation}
 
-\textbf{Condições de contorno:} na saída, $p_E=0$; na entrada, a pressão
-estática decorre da pressão de estagnação pela equação de Bernoulli,
+\textbf{Condições de contorno:} na saída, $p_E=0$ e na entrada, a pressão estática decorre da pressão de estagnação pela equação de Bernoulli,
 \begin{equation}
   p_A=p_0-\tfrac12\,\rho\,u_A^2 .
   \label{eq:bern}
@@ -73,79 +62,67 @@ Eq.~\eqref{eq:mom} pode ser integrada de 0 a $L$. Com $p(L)=0$, resulta
   =p_0 .
   \label{eq:exata}
 \end{equation}
-Sem meio poroso, restam o primeiro termo e
-$\dot m=A_E\sqrt{2\rho p_0}=0{,}44721$~kg/s. Com meio poroso,
-$\dot m=4{,}3078\times10^{-3}$~kg/s, e os três termos valem
-$9\times10^{-4}$, $8{,}217$ e $1{,}782$~Pa: quase toda a pressão
-disponível é consumida pelo arrasto, e não pela aceleração do fluido.
+Sem meio poroso, restam o primeiro termo e $\dot m=A_E\sqrt{2\rho p_0}=0{,}44721$~kg/s. Com meio poroso, $\dot m=4{,}3078\times10^{-3}$~kg/s, e os três termos valem $9\times10^{-4}$, $8{,}217$ e $1{,}782$~Pa, ou seja, quase toda a pressão disponível é consumida pelo arrasto, e não pela aceleração do fluido.
 
 %======================================================================
 \section*{3. Implementação Numérica}
 
-\textbf{Malha.} Adotou-se uma malha em arranjo desencontrado: $N+1$ nós de pressão em $x_I=(I-1)\,\Delta x$ e $N$ pontos de velocidade nas faces dos volumes de pressão, em $x_i=(i-\tfrac12)\,\Delta x$, com $\Delta x=L/N$. O volume da continuidade é centrado em um nó de pressão e o da quantidade de movimento, em um ponto de velocidade; assim, as diferenças de pressão e as vazões nas faces são obtidas sem interpolação, evitando o desacoplamento pressão-velocidade. Usa-se a notação local $P$, $W$, $E$ (nós) e $w$, $e$ (faces).
+\textbf{Malha:} Adotou-se uma malha em arranjo desencontrado: $N+1$ nós de pressão em $x_I=(I-1)\,\Delta x$ e $N$ pontos de velocidade nas faces dos volumes de pressão, em $x_i=(i-\tfrac12)\,\Delta x$, com $\Delta x=L/N$. O volume da continuidade é centrado em um nó de pressão e o da quantidade de movimento, em um ponto de velocidade; assim, as diferenças de pressão e as vazões nas faces são obtidas sem interpolação, evitando o desacoplamento pressão-velocidade. Usa-se a notação local $P$, $W$, $E$ (nós) e $w$, $e$ (faces).
 
-\textbf{Interpolação.} Termo advectivo: \emph{upwind} (UDS), com
-$u_w=u_W$ e $u_e=u_P$, pois $u>0$. Vazões nas faces: interpolação linear,
-$F_w=\rho A_w(u_W+u_P)/2$, com as velocidades da iteração anterior. Não há
-termo difusivo. O arrasto é integrado pela regra do ponto médio, com
-$|u_P|$ da iteração anterior.
+\textbf{Interpolação:} Termo advectivo: \emph{upwind} (UDS), com $u_w=u_W$ e $u_e=u_P$, pois $u>0$. Vazões nas faces: interpolação linear, $F_w=\rho A_w(u_W+u_P)/2$, com as velocidades da iteração anterior. Não há termo difusivo. O arrasto é integrado pela regra do ponto médio, com $|u_P|$ da iteração anterior.
 
-\textbf{Quantidade de movimento.} Integrando a Eq.~\eqref{eq:mom} no
-volume de $P$ obtém-se $a_P\,u_P=a_W\,u_W+a_E\,u_E+S_u$, com $a_E=0$ e
+\textbf{Quantidade de movimento:} Integrando a Eq.~\eqref{eq:mom} no volume de $P$ obtém-se $a_P\,u_P=a_W\,u_W+a_E\,u_E+S_u$, com $a_E=0$ e
 \begin{equation}
   D_P=\left(\frac{\mu}{K}+\frac{C_E\,\rho\,|u_P^{old}|}{\sqrt{K}}\right)A_P\,\Delta x .
 \end{equation}
-O arrasto entra em $a_P$, reforçando a diagonal. Os demais coeficientes
-estão na Tabela~\ref{tab:coef}. No ponto 1, $p_A$ é substituído pela
-Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$; a parcela negativa de $a_P$ foi
-passada ao termo fonte com $u_1^{old}$ (correção adiada), para manter
-$a_P>0$. No ponto $N$, a vazão na face de saída vem da continuidade,
-$F_e=\rho\,u_NA_N$.
+O arrasto entra em $a_P$, reforçando a diagonal. Os demais coeficientes estão na Tabela~\ref{tab:coef}. No ponto 1, $p_A$ é substituído pela Eq.~\eqref{eq:bern} com $u_A=u_1A_1/A_A$; a parcela negativa de $a_P$ foi passada ao termo fonte com $u_1^{old}$, para manter $a_P>0$. No ponto $N$, a vazão na face de saída vem da continuidade, $F_e=\rho\,u_NA_N$.
 
 \begin{table}[H]
 \centering
 \caption{Coeficientes da equação da quantidade de movimento.}
 \label{tab:coef}
-\begin{tabular}{lccc}
+{\renewcommand{\arraystretch}{1.8}%
+ \renewcommand{\tabularxcolumn}[1]{m{#1}}%
+\begin{tabularx}{0.95\textwidth}{c c C C}
 \hline
 Ponto & $a_W$ & $a_P$ & $S_u$\\
 \hline
 1 & 0 & $F_e+\tfrac12F_A\left(\dfrac{A_1}{A_A}\right)^{2}+D_P$
-  & $(p_0-p_e)\,A_1+F_A\dfrac{A_1}{A_A}\,u_1^{old}$\\[8pt]
-$2\le i\le N-1$ & $F_w$ & $F_e+D_P$ & $(p_w-p_e)\,A_P$\\[4pt]
+  & $(p_0-p_e)\,A_1+F_A\dfrac{A_1}{A_A}\,u_1^{old}$\\
+$2\le i\le N-1$ & $F_w$ & $F_e+D_P$ & $(p_w-p_e)\,A_P$\\
 $N$ & $F_w$ & $F_e+D_P$ & $(p_w-p_E)\,A_N$\\
 \hline
-\end{tabular}
+\end{tabularx}}
 \end{table}
 
-\textbf{Correção da pressão.} Desprezando as correções dos vizinhos
-(aproximação do SIMPLE), $u_P=u_P^*+d_P\,(p'_w-p'_e)$, com $d_P=A_P/a_P$.
-Substituindo na continuidade de cada volume de pressão:
+\textbf{Correção da pressão:} Desprezando as correções dos vizinhos (aproximação do SIMPLE), $u_P=u_P^*+d_P\,(p'_w-p'_e)$, com $d_P=A_P/a_P$. Substituindo na continuidade de cada volume de pressão:
 \begin{equation}
   a_P\,p'_P=a_W\,p'_W+a_E\,p'_E+b',
   \qquad
   a_W=(\rho dA)_w,\quad a_E=(\rho dA)_e,\quad b'=F_w^*-F_e^* ,
 \end{equation}
-com $a_P=a_W+a_E$.
-Adota-se $p'_A=p'_E=0$: $p_E$ é prescrita e $p_A$ é recalculada pela
-Eq.~\eqref{eq:bern} a cada iteração.
+com $a_P=a_W+a_E$. Adota-se $p'_A=p'_E=0$, pois $p_E$ é prescrita e $p_A$ é recalculada pela Eq.~\eqref{eq:bern} a cada iteração.
 
-\textbf{Algoritmo.} (1) Estimar $p$ (linear de 10 a 0~Pa) e $u$
-($\dot m=1$~kg/s); (2) montar os coeficientes e calcular o resíduo;
-(3) resolver a quantidade de movimento por TDMA, obtendo $u^*$;
-(4) resolver a correção de pressão por TDMA; (5) corrigir $p$ e $u$;
-(6) sub-relaxar, $\phi^{new}=(1-\alpha)\,\phi^{old}+\alpha\,\phi$, para
-$u$ e $p$; (7) recalcular $p_A$ e voltar a (2). A simulação é registrada
-como não convergida se alguma velocidade divergir ou se forem atingidas
-20\,000 iterações.
+\textbf{Algoritmo:}
+\begin{enumerate}
+  \setlength{\itemsep}{0pt}
+  \item Estimar $p$, com $p(x)=10-5\,x$, e $u$, com $\dot m=1$~kg/s e
+        $u=\dot m/(\rho A)$;
+  \item Montar os coeficientes e calcular o resíduo;
+  \item Resolver a quantidade de movimento por TDMA, obtendo $u^*$;
+  \item Resolver a correção de pressão por TDMA, obtendo $p'$;
+  \item Corrigir $p$ e $u$;
+  \item Sub-relaxar $u$ e $p$: $\phi^{new}=(1-\alpha)\,\phi^{old}+\alpha\,\phi$;
+  \item Recalcular $p_A$ pela Eq.~\eqref{eq:bern} e voltar ao passo 2.
+\end{enumerate}
+A simulação é registrada como não convergida se alguma velocidade divergir ou se forem atingidas 20\,000 iterações.
 
-\textbf{Resíduo.} No início de cada iteração, os coeficientes são
-aplicados aos campos com que foram montados:
+\textbf{Resíduo.} No início de cada iteração, os coeficientes são aplicados aos campos com que foram montados:
 \begin{equation}
   R=\sum_{i=1}^{N}\left|\,a_{P,i}\,u_i-a_{W,i}\,u_{i-1}-S_{u,i}\,\right|
   <\varepsilon_R ,
 \end{equation}
-com $\varepsilon_R=10^{-5}$ salvo indicação em contrário.
+com $\varepsilon_R$ inicialmente definido como $10^{-5}$
 
 %======================================================================
 \section*{4. Resultados e Discussões}
@@ -155,13 +132,7 @@ Os tempos foram medidos apenas no laço iterativo
 
 \subsection*{4.1 Verificação e sub-relaxação}
 
-Com $N=4$ e $\alpha=0{,}8$, o código reproduz a solução convergida de [1]
-com diferenças na quinta casa decimal (Tabela~\ref{tab:livro}). O erro de
-39,1\% é igual em todos os pontos: satisfeita a continuidade,
-$u_i=\dot m/(\rho A_i)$, e todo o erro está na vazão
-($\dot m=0{,}62221$~kg/s). Os coeficientes da segunda iteração do ponto~1
-publicados em [1] não são reproduzidos, embora a primeira iteração e a
-solução final coincidam, discrepância também relatada em [4].
+Com $N=4$ e $\alpha=0{,}8$, o código reproduz a solução convergida de [1] com diferenças na quinta casa decimal (Tabela~\ref{tab:livro}). O erro de 39,1\% é igual em todos os pontos e a continuidade é satisfeita ($u_i=\dot m/(\rho A_i)$).
 
 \begin{table}[H]
 \centering
@@ -180,21 +151,13 @@ Exata             & 0,99381 & 1,27775 & 1,78885 & 2,98142\\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.55\textwidth]{fig_relaxacao.png}
+\includegraphics[width=0.8\textwidth]{fig_relaxacao.png}
 \caption{Iterações até a convergência em função de $\alpha$. Os pontos
 ausentes correspondem a casos que não convergiram.}
 \label{fig:relax}
 \end{figure}
 
-A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de
-0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. O
-SIMPLE despreza $\sum a_{nb}u'_{nb}$, mas aqui $a_W=F_w\approx a_P=F_e$:
-o termo desprezado é da ordem do mantido, e a correção de velocidade se
-acumula ao longo dos $N$ pontos a montante. O SIMPLE subestima, assim, a
-resposta da velocidade à pressão e superestima $p'$, o que exige aplicar
-uma fração $\alpha\sim1/N$ da correção. Perto do limite, a solução oscila
-antes de convergir (formato em ``V'' das curvas); abaixo dele, as
-iterações crescem com $1/\alpha$.
+A Figura~\ref{fig:relax} mostra que o maior $\alpha$ admissível cai de 0,8 ($N=4$) para cerca de 0,02 ($N=64$), aproximadamente com $1/N$. Perto do limite, a solução oscila antes de convergir (formato em ``V'' das curvas), abaixo dele, as iterações crescem com $1/\alpha$.
 
 \subsection*{4.2 Estudo de malha}
 
@@ -207,31 +170,28 @@ de iterações em cada malha.}
 \hline
 $N$ & $\alpha$ & Iterações & Tempo (s) & $\dot m$ (kg/s) & Erro (\%)\\
 \hline
-4   & 0,8   & 28   & 0,0003 & 0,62221 & 39,13\\
-8   & 0,3   & 79   & 0,0012 & 0,53032 & 18,58\\
-16  & 0,15  & 224  & 0,0046 & 0,48707 & 8,91\\
-32  & 0,05  & 487  & 0,0196 & 0,46659 & 4,33\\
-64  & 0,03  & 894  & 0,0702 & 0,45674 & 2,13\\
-128 & 0,015 & 1824 & 0,2723 & 0,45194 & 1,06\\
-256 & 0,007 & 3887 & 1,2122 & 0,44956 & 0,53\\
+4 & 0.8 & 28 & 0.0010 & 0.62221 & 39.13\\
+8 & 0.3 & 79 & 0.0047 & 0.53032 & 18.58\\
+16 & 0.15 & 224 & 0.0228 & 0.48707 & 8.91\\
+32 & 0.05 & 487 & 0.1101 & 0.46659 & 4.33\\
+64 & 0.03 & 894 & 0.2340 & 0.45674 & 2.13\\
+128 & 0.015 & 1824 & 0.8016 & 0.45194 & 1.06\\
+256 & 0.007 & 3887 & 2.8531 & 0.44956 & 0.53\\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{fig_malha.png}
-\caption{Erro na vazão e tempo de processamento em função de $N$.}
+\includegraphics[width=\textwidth]{fig_malha.png}
+\caption{Erro na vazão (esquerda) e tempo de processamento (direita) em
+função de $N$, em escala log-log. As retas tracejadas indicam as
+inclinações de referência: $-1$ (erro $\propto\Delta x$) e 2
+(tempo $\propto N^2$).}
 \label{fig:malha}
 \end{figure}
 
-O erro cai pela metade a cada refino (inclinação $-1$), como esperado para
-o UDS, de primeira ordem. As malhas grosseiras superestimam a vazão: o UDS
-transporta o momento com a velocidade a montante, inferior à da face em um
-escoamento que acelera, subestimando o fluxo de momento na saída. O tempo
-cresce com $N^2$, pois o custo por iteração é proporcional a $N$ e o
-número de iterações também, devido à redução de $\alpha$: reduzir o erro
-pela metade custa quatro vezes mais tempo.
+O erro cai pela metade a cada refino (inclinação = $-1$), como esperado para o UDS, de primeira ordem. As malhas grosseiras superestimam a vazão: o UDS transporta o momento com a velocidade a montante, inferior à da face em um escoamento que acelera, subestimando o fluxo de momento na saída. O tempo cresce com $N^2$, pois o custo por iteração é proporcional a $N$ e o número de iterações também, devido à redução de $\alpha$: reduzir o erro pela metade custa quatro vezes mais tempo.
 
 \subsection*{4.3 Critério de convergência}
 

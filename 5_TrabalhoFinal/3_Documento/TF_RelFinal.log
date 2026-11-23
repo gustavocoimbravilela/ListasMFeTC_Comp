@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.16)  22 NOV 2026 17:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.16)  23 NOV 2026 06:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -422,44 +422,44 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <fig_relaxacao.png, id=21, 505.89pt x 361.35pt>
 File: fig_relaxacao.png Graphic file (type png)
 <use fig_relaxacao.png>
-Package pdftex.def Info: fig_relaxacao.png  used on input line 183.
-(pdftex.def)             Requested size: 242.5611pt x 173.25856pt.
- [3 <./fig_relaxacao.png>]
-<fig_malha.png, id=27, 722.7pt x 289.08pt>
+Package pdftex.def Info: fig_relaxacao.png  used on input line 154.
+(pdftex.def)             Requested size: 352.81552pt x 252.01697pt.
+ [3]
+<fig_malha.png, id=26, 722.7pt x 289.08pt>
 File: fig_malha.png Graphic file (type png)
 <use fig_malha.png>
-Package pdftex.def Info: fig_malha.png  used on input line 223.
-(pdftex.def)             Requested size: 352.81552pt x 141.12552pt.
- [4 <./fig_malha.png>]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 250.
+Package pdftex.def Info: fig_malha.png  used on input line 186.
+(pdftex.def)             Requested size: 441.01773pt x 176.4091pt.
+ [4 <./fig_relaxacao.png>]
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 210.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 273.
+) [5 <./fig_malha.png>]
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 233.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
-LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 499.
+LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 459.
  (C:\Users\gusta\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1pcr.fd
 File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
-) [5] [6] [7]) [8] (TF_RelFinal.aux (Capa/capa.aux) (TF.aux))
+) [6] [7] [8]) [9] (TF_RelFinal.aux (Capa/capa.aux) (TF.aux))
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 8438 strings out of 467501
- 141958 string characters out of 5408550
- 583020 words of memory out of 5000000
- 37527 multiletter control sequences out of 15000+600000
+ 8442 strings out of 467501
+ 142080 string characters out of 5408550
+ 582023 words of memory out of 5000000
+ 37531 multiletter control sequences out of 15000+600000
  654310 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 67i,11n,77p,728b,540s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 67i,13n,77p,728b,540s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/gusta/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on TF_RelFinal.pdf (9 pages, 303679 bytes).
+Output written on TF_RelFinal.pdf (10 pages, 303947 bytes).
 PDF statistics:
- 93 PDF objects out of 1000 (max. 8388607)
+ 96 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
